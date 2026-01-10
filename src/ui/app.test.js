@@ -1,0 +1,62 @@
+
+import { describe, it, expect, vi } from 'vitest';
+import { App } from './app.js';
+
+// Mock dependencies that might cause issues in Node environment
+// renderWorld uses CanvasRenderingContext2D methods.
+vi.mock('../render/renderWorld.js', () => ({
+    render: vi.fn()
+}));
+
+// We might need to mock physics/track and physics/buildCar if they fail
+vi.mock('../physics/track.js', () => ({
+    createTrack: vi.fn()
+}));
+vi.mock('../physics/buildCar.js', () => ({
+    buildCar: () => ({ parts: new Map(), joints: [] })
+}));
+vi.mock('../ga/evolve.js', () => ({
+    createFirstGeneration: () => [],
+    nextGeneration: () => []
+}));
+
+describe('App UI Behavior', () => {
+    it('reports statistics during draw loop', () => {
+        // Mock Canvas
+        const mockCtx = {
+            fillStyle: '',
+            font: '',
+            fillText: vi.fn(),
+        };
+        const mockCanvas = {
+            getContext: () => mockCtx,
+            width: 800,
+            height: 600
+        };
+
+        const app = new App(mockCanvas);
+
+        // Manually set state
+        app.generation = 42;
+        app.cars = [{
+            maxX: 123.45,
+            finished: false,
+            // Mock other props needed for draw() logic if any
+            chassis: { getPosition: () => ({ x: 0, y: 0 }) },
+            carId: 0
+        }];
+
+        // Define verify behavior
+        const statsListener = vi.fn();
+        app.setStatsCallback(statsListener);
+
+        // Act
+        app.draw();
+
+        // Assert
+        expect(statsListener).toHaveBeenCalledWith({
+            generation: 42,
+            bestFitness: 123.45
+        });
+    });
+});
