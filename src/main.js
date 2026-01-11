@@ -1,16 +1,19 @@
 
 import './style.css'
 import { App } from './ui/app.js'
+import { initPartsPanel } from './ui/partsPanel.js'
 
 const canvas = document.getElementById('world');
 
 // Read initial slider values
 const mutationSlider = document.getElementById('mutation-slider');
 const popSlider = document.getElementById('pop-slider');
+const dnaSlider = document.getElementById('dna-slider');
 const initialMutRate = parseInt(mutationSlider.value) / 100;
 const initialPopSize = parseInt(popSlider.value);
+const initialMaxParts = parseInt(dnaSlider.value);
 
-const app = new App(canvas, { popSize: initialPopSize, mutRate: initialMutRate });
+const app = new App(canvas, { popSize: initialPopSize, mutRate: initialMutRate, maxParts: initialMaxParts });
 
 // Resize handling
 function resize() {
@@ -28,9 +31,13 @@ app.setStatsCallback((stats) => {
   document.getElementById('stat-best').textContent = stats.bestFitness.toFixed(2);
   document.getElementById('stat-mut').textContent = (app.mutRate * 100).toFixed(0) + '%';
   document.getElementById('stat-pop').textContent = app.popSize;
+  document.getElementById('stat-dna').textContent = app.maxParts;
 });
 
 app.start();
+
+// Initialize parts panel
+initPartsPanel();
 
 // Controls
 document.getElementById('btn-start').addEventListener('click', () => {
@@ -65,4 +72,13 @@ popSlider.addEventListener('input', (e) => {
   app.setSettings({ popSize: val });
   popVal.textContent = val;
   document.getElementById('stat-pop').textContent = val;
+});
+
+// DNA Length Slider
+const dnaVal = document.getElementById('dna-val');
+dnaSlider.addEventListener('input', (e) => {
+  const val = parseInt(e.target.value);
+  app.setSettings({ maxParts: val });
+  dnaVal.textContent = val;
+  document.getElementById('stat-dna').textContent = val;
 });

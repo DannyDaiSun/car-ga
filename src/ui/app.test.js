@@ -1,6 +1,7 @@
 
 import { describe, it, expect, vi } from 'vitest';
 import { App } from './app.js';
+import { render } from '../render/renderWorld.js';
 
 // Mock dependencies that might cause issues in Node environment
 // renderWorld uses CanvasRenderingContext2D methods.
@@ -58,5 +59,29 @@ describe('App UI Behavior', () => {
             generation: 42,
             bestFitness: 123.45
         });
+    });
+
+    it('selects running car over stopped car with higher maxX', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        app.cars = [
+            { carId: 0, maxX: 100, finished: true, chassis: { getPosition: () => ({ x: 100, y: 0 }) } },
+            { carId: 1, maxX: 50, finished: false, chassis: { getPosition: () => ({ x: 50, y: 0 }) } },
+        ];
+
+        app.draw();
+
+        // The render function is called with the running car's leaderId
+        expect(render).toHaveBeenLastCalledWith(
+            expect.anything(),
+            null, // world is null in test environment
+            50, // cameraX = running car's position
+            expect.anything(),
+            expect.anything(),
+            1, // leaderId = running car
+            expect.anything()
+        );
     });
 });

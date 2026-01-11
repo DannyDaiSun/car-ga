@@ -10,6 +10,16 @@
 
 <body>
   <div id="app">
+    <!-- Parts Panel (left side, collapsible) -->
+    <div id="parts-panel" class="parts-panel collapsed">
+      <button id="parts-toggle" class="parts-toggle">◀ Parts</button>
+      <div class="parts-content">
+        <h2>Car Parts</h2>
+        <div class="parts-grid" id="parts-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </div>
     <div id="game-container">
       <canvas id="world"></canvas>
     </div>
@@ -24,12 +34,15 @@
             id="mutation-val">2%</span></label>
         <label>Population: <input type="range" id="pop-slider" min="10" max="200" value="100"><span
             id="pop-val">100</span></label>
+        <label>DNA Length: <input type="range" id="dna-slider" min="2" max="12" value="8"><span
+            id="dna-val">8</span></label>
       </div>
       <div id="stats">
         <p>Generation: <span id="stat-gen">1</span></p>
         <p>Best Fitness: <span id="stat-best">0</span></p>
         <p>Mutation Rate: <span id="stat-mut">2%</span></p>
         <p>Population: <span id="stat-pop">100</span></p>
+        <p>DNA Length: <span id="stat-dna">8</span></p>
       </div>
     </div>
   </div>

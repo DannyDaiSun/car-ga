@@ -1,1 +1,0 @@
-# Verified Project Lessons

@@ -25,38 +25,40 @@
 body {
   margin: 0;
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: var(--bg-teal);
+  align-items: center;
   justify-content: center;
+  min-width: 320px;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-teal);
 }
 
 #app {
   display: flex;
-  width: 90vw;
-  height: 85vh;
-  max-width: 1000px;
+  width: 95vw;
+  height: 95vh;
+  max-width: 1200px;
+  max-height: 95vh;
   background-color: var(--gb-cream);
   border-radius: 20px 20px 40px 40px;
-  /* Gameboy shapeish */
   box-shadow:
     10px 10px 0px rgba(0, 0, 0, 0.2),
     inset -5px -5px 10px rgba(0, 0, 0, 0.1);
-  padding: 30px;
-  gap: 20px;
+  padding: 15px;
+  gap: 15px;
   border: 4px solid rgba(0, 0, 0, 0.1);
+  overflow: hidden;
 }
 
 #game-container {
-  flex: 2;
+  flex: 1;
+  min-width: 0;
   background: var(--gb-accent);
-  /* Bezel color */
   position: relative;
   overflow: hidden;
   border-radius: 15px 15px 40px 15px;
-  padding: 30px 30px 50px 30px;
-  /* Bezel thickness */
+  padding: 20px 20px 30px 20px;
   box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
@@ -98,43 +100,45 @@ canvas {
 }
 
 #sidebar {
-  width: 250px;
+  width: 200px;
+  min-width: 180px;
+  max-width: 220px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  border-left: none;
-  padding-top: 10px;
+  gap: 10px;
+  padding-top: 5px;
+  overflow-y: auto;
+  flex-shrink: 0;
 }
 
 h1 {
-  font-size: 16px;
-  /* Small pixel font size */
-  line-height: 1.4;
-  margin: 0 0 10px 0;
+  font-size: clamp(10px, 1.5vw, 14px);
+  line-height: 1.3;
+  margin: 0 0 5px 0;
   text-align: center;
   color: var(--gb-accent);
   text-transform: uppercase;
   border-bottom: 2px solid var(--gb-accent);
-  padding-bottom: 10px;
+  padding-bottom: 5px;
 }
 
 .controls {
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  margin-top: auto;
-  margin-bottom: auto;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
 }
 
 button {
-  padding: 15px;
-  font-size: 12px;
+  padding: 10px;
+  font-size: clamp(8px, 1vw, 10px);
   font-family: inherit;
   border: none;
   cursor: pointer;
   transition: transform 0.1s;
   text-transform: uppercase;
-  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
 }
 
 button:active {
@@ -146,22 +150,22 @@ button:active {
   background-color: var(--btn-a);
   color: var(--pixel-dark);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: flex-end;
-  /* Right side like A button */
-  margin-right: 20px;
+  margin-right: 15px;
+  position: relative;
 }
 
 #btn-start::after {
   content: "A";
   position: absolute;
-  bottom: -25px;
+  bottom: -18px;
   color: var(--gb-accent);
-  font-size: 14px;
+  font-size: 10px;
 }
 
 
@@ -169,31 +173,32 @@ button:active {
   background-color: var(--btn-b);
   color: var(--pixel-dark);
   border-radius: 50%;
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
   align-self: flex-end;
-  margin-right: 80px;
-  /* Offset left of A */
-  margin-top: 20px;
+  margin-right: 60px;
+  margin-top: 10px;
+  position: relative;
 }
 
 #btn-reset::after {
   content: "B";
   position: absolute;
-  bottom: -25px;
+  bottom: -18px;
   color: var(--gb-accent);
-  font-size: 14px;
+  font-size: 10px;
 }
 
 label {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  font-size: 10px;
-  margin-top: 30px;
+  gap: 4px;
+  font-size: clamp(7px, 1vw, 9px);
+  margin-top: 15px;
+  color: var(--pixel-dark);
 }
 
 input[type=range] {
@@ -203,15 +208,114 @@ input[type=range] {
 
 #stats {
   background: var(--lcd-green);
-  padding: 10px;
+  padding: 8px;
   border: 2px solid var(--pixel-dark);
+  font-size: clamp(7px, 1vw, 9px);
+  color: var(--pixel-dark);
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+#stats p {
+  margin: 3px 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Parts Panel - Left Side Overlay */
+.parts-panel {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: row;
+  transition: transform 0.3s ease;
+}
+
+.parts-panel.collapsed {
+  transform: translateY(-50%) translateX(-100%);
+}
+
+.parts-panel.collapsed .parts-toggle {
+  transform: translateX(100%);
+}
+
+.parts-toggle {
+  background: var(--gb-accent);
+  color: var(--gb-cream);
+  border: 2px solid var(--pixel-dark);
+  border-left: none;
+  padding: 10px 8px;
+  font-family: inherit;
   font-size: 10px;
+  cursor: pointer;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  border-radius: 0 8px 8px 0;
+  box-shadow: 2px 0 0 rgba(0, 0, 0, 0.2);
+  transition: background 0.2s;
+}
+
+.parts-toggle:hover {
+  background: var(--btn-a);
+}
+
+.parts-content {
+  background: var(--gb-cream);
+  border: 3px solid var(--pixel-dark);
+  border-radius: 0 10px 10px 0;
+  padding: 15px;
+  max-height: 60vh;
+  overflow-y: auto;
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+.parts-content h2 {
+  font-size: 12px;
+  margin: 0 0 10px 0;
+  color: var(--gb-accent);
+  border-bottom: 2px solid var(--gb-accent);
+  padding-bottom: 5px;
+}
+
+.parts-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 50px);
+  gap: 8px;
+}
+
+.part-slot {
+  width: 50px;
+  height: 50px;
+  background: var(--lcd-green);
+  border: 2px solid var(--pixel-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
   color: var(--pixel-dark);
   box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-#stats p {
-  margin: 5px 0;
+.part-slot .part-icon {
+  width: 30px;
+  height: 30px;
   display: flex;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
+}
+
+.part-slot .part-icon.block {
+  background: var(--btn-b);
+  border: 1px solid var(--pixel-dark);
+}
+
+.part-slot .part-icon.wheel {
+  background: var(--btn-a);
+  border: 1px solid var(--pixel-dark);
+  border-radius: 50%;
 }

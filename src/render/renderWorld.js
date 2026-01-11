@@ -1,10 +1,11 @@
 
 import { PI } from '../ga/dna.js';
 import * as planck from 'planck-js';
+import { getTrackHeight } from '../physics/track.js';
 
 const SCALE = 20; // pixels per meter
 
-export function render(ctx, world, cameraX, width, height, championId) {
+export function render(ctx, world, cameraX, width, height, championId, miniMapData) {
     // Draw Sky - LCD Green
     ctx.fillStyle = '#c4f0c2';
     ctx.fillRect(0, 0, width, height);
@@ -125,4 +126,115 @@ export function render(ctx, world, cameraX, width, height, championId) {
     }
 
     ctx.restore();
+
+    // Draw Mini-Map
+    if (miniMapData) {
+        renderMiniMap(ctx, miniMapData, width, height);
+    }
+}
+
+/**
+ * Renders a mini-map bar at the bottom of the screen.
+ * Shows terrain shape, all cars as dots at correct heights, and a flag at the historical max distance.
+ */
+function renderMiniMap(ctx, miniMapData, width, height) {
+    const { cars, historicalMaxX } = miniMapData;
+
+    // Mini-map dimensions and position (bottom of screen, styled like LCD display)
+    const mapHeight = 30; // Slightly taller to show terrain variation
+    const mapMargin = 15;
+    const mapWidth = width - mapMargin * 2;
+    const mapY = height - mapHeight - mapMargin;
+    const mapX = mapMargin;
+
+    // Calculate scale: map 0 to historicalMaxX (or at least 100m) to mapWidth
+    const maxDistance = Math.max(historicalMaxX, 100);
+    const scaleX = mapWidth / maxDistance;
+
+    // Terrain height scaling: track height ranges roughly from -3 to +4 meters
+    // Map this to the mini-map's vertical space (leaving some padding)
+    const terrainPadding = 6;
+    const terrainHeight = mapHeight - terrainPadding * 2;
+    const minTerrainY = -3;
+    const maxTerrainY = 5;
+    const scaleY = terrainHeight / (maxTerrainY - minTerrainY);
+
+    // Helper function to convert world Y to mini-map Y
+    const worldYToMapY = (worldY) => {
+        // Invert because canvas Y is down, world Y is up
+        const normalizedY = (worldY - minTerrainY) / (maxTerrainY - minTerrainY);
+        return mapY + mapHeight - terrainPadding - (normalizedY * terrainHeight);
+    };
+
+    // Draw mini-map background (LCD green with dark border)
+    ctx.fillStyle = '#c4f0c2'; // LCD green
+    ctx.strokeStyle = '#2f483a'; // Pixel dark
+    ctx.lineWidth = 2;
+    ctx.fillRect(mapX, mapY, mapWidth, mapHeight);
+    ctx.strokeRect(mapX, mapY, mapWidth, mapHeight);
+
+    // Draw terrain line (sample every few meters for efficiency)
+    const sampleStep = maxDistance / 50; // ~50 samples across the visible range
+    ctx.beginPath();
+    ctx.moveTo(mapX, worldYToMapY(getTrackHeight(0)));
+
+    for (let x = sampleStep; x <= maxDistance; x += sampleStep) {
+        const terrainY = getTrackHeight(x);
+        const screenX = mapX + x * scaleX;
+        const screenY = worldYToMapY(terrainY);
+        ctx.lineTo(screenX, screenY);
+    }
+
+    ctx.strokeStyle = '#2f483a'; // Dark pixel color for terrain
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw historical max distance marker (flag)
+    if (historicalMaxX > 0) {
+        const flagTerrainY = getTrackHeight(historicalMaxX);
+        const flagX = mapX + Math.min(historicalMaxX * scaleX, mapWidth - 5);
+        const flagY = worldYToMapY(flagTerrainY) - 12; // Above the terrain
+
+        // Flag pole
+        ctx.beginPath();
+        ctx.moveTo(flagX, flagY);
+        ctx.lineTo(flagX, flagY + 12);
+        ctx.strokeStyle = '#2f483a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Flag (triangle)
+        ctx.beginPath();
+        ctx.moveTo(flagX, flagY);
+        ctx.lineTo(flagX + 8, flagY + 4);
+        ctx.lineTo(flagX, flagY + 8);
+        ctx.closePath();
+        ctx.fillStyle = '#e89753'; // Orange button color
+        ctx.fill();
+        ctx.strokeStyle = '#2f483a';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+    }
+
+    // Draw car dots at correct terrain heights
+    cars.forEach(car => {
+        if (car.x > 0) {
+            const terrainY = getTrackHeight(car.x);
+            const dotX = mapX + Math.min(car.x * scaleX, mapWidth - 3);
+            const dotY = worldYToMapY(terrainY);
+            const dotRadius = car.finished ? 2 : 3;
+
+            ctx.beginPath();
+            ctx.arc(dotX, dotY, dotRadius, 0, 2 * PI);
+            ctx.fillStyle = car.finished ? '#5e4b6c' : '#d9455f'; // Finished = muted, Active = red
+            ctx.fill();
+        }
+    });
+
+    // Draw "RECORD" label
+    if (historicalMaxX > 0) {
+        ctx.font = '8px "Press Start 2P", monospace';
+        ctx.fillStyle = '#2f483a';
+        ctx.fillText(`${Math.floor(historicalMaxX)}m`, mapX + 5, mapY - 3);
+    }
 }

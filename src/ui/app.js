@@ -19,9 +19,10 @@ export class App {
         // GA Settings (configurable)
         this.popSize = options.popSize ?? 100;
         this.mutRate = options.mutRate ?? 0.02;
+        this.maxParts = options.maxParts ?? 8;
 
         this.generation = 1;
-        this.population = createFirstGeneration(this.popSize);
+        this.population = createFirstGeneration(this.popSize, this.maxParts);
         this.bestFitnessesByGen = [];
 
         this.running = false;
@@ -31,6 +32,9 @@ export class App {
         this.world = null;
         this.cars = [];
         this.time = 0;
+
+        // Mini-map: Track the furthest distance ever reached
+        this.historicalMaxX = 0;
 
         this.requestRef = null;
         this.statsCallback = null;
@@ -141,6 +145,10 @@ export class App {
                 if (x > car.maxX + MIN_PROGRESS) {
                     car.maxX = x;
                     car.lastProgressTime = this.time;
+                    // Update historical max for mini-map
+                    if (x > this.historicalMaxX) {
+                        this.historicalMaxX = x;
+                    }
                 }
             }
 
@@ -183,7 +191,7 @@ export class App {
         this.bestFitnessesByGen.push(best.fitness);
 
         // Next Gen
-        const nextDNAs = nextGeneration(results, { popSize: this.popSize, mutRate: this.mutRate });
+        const nextDNAs = nextGeneration(results, { popSize: this.popSize, mutRate: this.mutRate, maxParts: this.maxParts });
         this.population = nextDNAs;
         this.generation++;
 
@@ -197,14 +205,27 @@ export class App {
         // This could mean "current best" or "best from previous result"?
         // Usually current leader.
 
-        let leader = this.cars[0];
-        this.cars.forEach(c => {
-            if (c.maxX > leader.maxX) leader = c;
-        });
+        // Prefer running cars; if all finished, take best overall
+        const runningCars = this.cars.filter(c => !c.finished);
+        let leader;
+        if (runningCars.length > 0) {
+            leader = runningCars.reduce((a, b) => a.maxX > b.maxX ? a : b);
+        } else {
+            leader = this.cars.reduce((a, b) => a.maxX > b.maxX ? a : b);
+        }
 
         const cameraX = leader.chassis ? leader.chassis.getPosition().x : 0;
 
-        render(this.ctx, this.world, cameraX, this.width, this.height, leader.carId);
+        // Prepare mini-map data
+        const miniMapData = {
+            cars: this.cars.map(c => ({
+                x: c.chassis ? c.chassis.getPosition().x : 0,
+                finished: c.finished
+            })),
+            historicalMaxX: this.historicalMaxX
+        };
+
+        render(this.ctx, this.world, cameraX, this.width, this.height, leader.carId, miniMapData);
 
         // Draw HUD
         this.ctx.fillStyle = 'black';
@@ -234,12 +255,13 @@ export class App {
 
     reset() {
         this.generation = 1;
-        this.population = createFirstGeneration(this.popSize);
+        this.population = createFirstGeneration(this.popSize, this.maxParts);
         this.startGeneration();
     }
 
-    setSettings({ popSize, mutRate }) {
+    setSettings({ popSize, mutRate, maxParts }) {
         if (popSize !== undefined) this.popSize = popSize;
         if (mutRate !== undefined) this.mutRate = mutRate;
+        if (maxParts !== undefined) this.maxParts = maxParts;
     }
 }
