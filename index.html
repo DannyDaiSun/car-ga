@@ -1,30 +1,39 @@
-
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Genetic Car Evolution</title>
-    <link rel="stylesheet" href="./style.css" />
-  </head>
-  <body>
-    <div id="app">
-      <div id="game-container">
-        <canvas id="world"></canvas>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genetic Car Evolution</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <div id="app">
+    <div id="game-container">
+      <canvas id="world"></canvas>
+    </div>
+    <div id="sidebar">
+      <h1>Car Evolution</h1>
+      <div class="controls">
+        <button id="btn-start">Pause/Start</button>
+        <button id="btn-reset">Reset</button>
+        <label>Speed: <input type="range" id="speed-slider" min="1" max="10" value="1"><span
+            id="speed-val">1x</span></label>
+        <label>Mutation: <input type="range" id="mutation-slider" min="0" max="100" value="2"><span
+            id="mutation-val">2%</span></label>
+        <label>Population: <input type="range" id="pop-slider" min="10" max="200" value="100"><span
+            id="pop-val">100</span></label>
       </div>
-      <div id="sidebar">
-        <h1>Car Evolution</h1>
-        <div class="controls">
-          <button id="btn-start">Pause/Start</button>
-          <button id="btn-reset">Reset</button>
-          <label>Speed: <input type="range" id="speed-slider" min="1" max="10" value="1"><span id="speed-val">1x</span></label>
-        </div>
-        <div id="stats">
-            <p>Generation: <span id="stat-gen">1</span></p>
-            <p>Best Fitness: <span id="stat-best">0</span></p>
-        </div>
+      <div id="stats">
+        <p>Generation: <span id="stat-gen">1</span></p>
+        <p>Best Fitness: <span id="stat-best">0</span></p>
+        <p>Mutation Rate: <span id="stat-mut">2%</span></p>
+        <p>Population: <span id="stat-pop">100</span></p>
       </div>
     </div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+
 </html>

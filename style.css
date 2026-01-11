@@ -1,11 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Press Start 2P', cursive;
   line-height: 1.5;
   font-weight: 400;
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+
+  /* Game Boy Color Palette */
+  --bg-teal: #4ec0cb;
+  --gb-cream: #f2f0e5;
+  --gb-accent: #5e4b6c;
+  /* Dark bezel/text */
+  --btn-a: #e89753;
+  --btn-b: #d9455f;
+  --lcd-green: #c4f0c2;
+  --pixel-dark: #2f483a;
+
+  --text-main: var(--gb-accent);
+
+  color-scheme: light;
+  color: var(--text-main);
+  background-color: var(--bg-teal);
 }
 
 body {
@@ -14,64 +28,190 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-teal);
+  justify-content: center;
 }
 
 #app {
   display: flex;
-  width: 100vw;
-  height: 100vh;
+  width: 90vw;
+  height: 85vh;
+  max-width: 1000px;
+  background-color: var(--gb-cream);
+  border-radius: 20px 20px 40px 40px;
+  /* Gameboy shapeish */
+  box-shadow:
+    10px 10px 0px rgba(0, 0, 0, 0.2),
+    inset -5px -5px 10px rgba(0, 0, 0, 0.1);
+  padding: 30px;
+  gap: 20px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
 }
 
 #game-container {
-  flex: 1;
-  background: #EEE;
+  flex: 2;
+  background: var(--gb-accent);
+  /* Bezel color */
   position: relative;
   overflow: hidden;
+  border-radius: 15px 15px 40px 15px;
+  padding: 30px 30px 50px 30px;
+  /* Bezel thickness */
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
 }
+
+/* Red LED Power indicator */
+#game-container::before {
+  content: "BATTERY";
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  transform: translateY(-50%) rotate(-90deg);
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+#game-container::after {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 12px;
+  width: 8px;
+  height: 8px;
+  background: #FF0000;
+  border-radius: 50%;
+  box-shadow: 0 0 5px #F00;
+}
+
 
 canvas {
   width: 100%;
   height: 100%;
   display: block;
+  background-color: var(--lcd-green);
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.2);
+  image-rendering: pixelated;
+  /* Crisp pixels */
 }
 
 #sidebar {
-  width: 300px;
-  background: #333;
-  padding: 20px;
-  box-shadow: -2px 0 5px rgba(0,0,0,0.5);
+  width: 250px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  border-left: none;
+  padding-top: 10px;
 }
 
 h1 {
-  font-size: 1.5em;
-  line-height: 1.1;
+  font-size: 16px;
+  /* Small pixel font size */
+  line-height: 1.4;
+  margin: 0 0 10px 0;
+  text-align: center;
+  color: var(--gb-accent);
+  text-transform: uppercase;
+  border-bottom: 2px solid var(--gb-accent);
+  padding-bottom: 10px;
 }
 
 .controls {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 button {
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  padding: 15px;
+  font-size: 12px;
   font-family: inherit;
-  background-color: #1a1a1a;
+  border: none;
   cursor: pointer;
-  transition: border-color 0.25s;
-  border: 1px solid transparent;
-  border-radius: 8px;
+  transition: transform 0.1s;
+  text-transform: uppercase;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
 }
 
-button:hover {
-  border-color: #646cff;
+button:active {
+  transform: translateY(4px);
+  box-shadow: none;
+}
+
+#btn-start {
+  background-color: var(--btn-a);
+  color: var(--pixel-dark);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  /* Right side like A button */
+  margin-right: 20px;
+}
+
+#btn-start::after {
+  content: "A";
+  position: absolute;
+  bottom: -25px;
+  color: var(--gb-accent);
+  font-size: 14px;
+}
+
+
+#btn-reset {
+  background-color: var(--btn-b);
+  color: var(--pixel-dark);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  margin-right: 80px;
+  /* Offset left of A */
+  margin-top: 20px;
+}
+
+#btn-reset::after {
+  content: "B";
+  position: absolute;
+  bottom: -25px;
+  color: var(--gb-accent);
+  font-size: 14px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 10px;
+  margin-top: 30px;
 }
 
 input[type=range] {
-    width: 100%;
+  width: 100%;
+  accent-color: var(--gb-accent);
+}
+
+#stats {
+  background: var(--lcd-green);
+  padding: 10px;
+  border: 2px solid var(--pixel-dark);
+  font-size: 10px;
+  color: var(--pixel-dark);
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#stats p {
+  margin: 5px 0;
+  display: flex;
+  justify-content: space-between;
 }

@@ -3,20 +3,18 @@ import { pickParentRoulette } from './select.js';
 import { subtreeCrossover, mutatePerField, normalizeAndClamp } from './mutate.js';
 import { cloneDNA, createRandomDNA } from './dna.js';
 
-const POP_SIZE = 60;
 const ELITE_COUNT = 6;
 const CROSSOVER_RATE = 0.90;
-const MUT_RATE = 0.02;
 
-export function createFirstGeneration() {
+export function createFirstGeneration(popSize = 100) {
     const pop = [];
-    for (let i = 0; i < POP_SIZE; i++) {
+    for (let i = 0; i < popSize; i++) {
         pop.push(createRandomDNA());
     }
     return pop;
 }
 
-export function nextGeneration(prevPop) {
+export function nextGeneration(prevPop, { popSize = 100, mutRate = 0.02 } = {}) {
     // prevPop is array of { dna, fitness }
 
     // 1. Sort by fitness desc
@@ -34,16 +32,10 @@ export function nextGeneration(prevPop) {
     }
 
     // 3. Breeding
-    // We need logic to pick parents.
-    // pickParentRoulette expects (popDNAs, fitnesses)
-    // Actually we implemented pickParentRoulette(popDNAs, fitnesses) or similar?
-    // Let's check select.js: pickParentRoulette(pop, fitnesses) returns DNA.
-    // 'pop' argument is array of DNAs.
-
     const dnas = prevPop.map(p => p.dna);
     const fitnesses = prevPop.map(p => p.fitness);
 
-    while (nextDNAs.length < POP_SIZE) {
+    while (nextDNAs.length < popSize) {
         const p1 = pickParentRoulette(dnas, fitnesses);
         const p2 = pickParentRoulette(dnas, fitnesses);
 
@@ -54,7 +46,7 @@ export function nextGeneration(prevPop) {
             child = cloneDNA(p1);
         }
 
-        child = mutatePerField(child, MUT_RATE);
+        child = mutatePerField(child, mutRate);
         child = normalizeAndClamp(child);
 
         nextDNAs.push(child);

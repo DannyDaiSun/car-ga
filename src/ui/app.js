@@ -5,20 +5,23 @@ import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
 import { render } from '../render/renderWorld.js';
 
-const POP_SIZE = 60;
 const MAX_TIME = 20; // seconds
 const STOP_WAIT = 3; // seconds
 const MIN_PROGRESS = 0.05; // meters
 
 export class App {
-    constructor(canvas) {
+    constructor(canvas, options = {}) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.width = canvas.width;
         this.height = canvas.height;
 
+        // GA Settings (configurable)
+        this.popSize = options.popSize ?? 100;
+        this.mutRate = options.mutRate ?? 0.02;
+
         this.generation = 1;
-        this.population = createFirstGeneration(); // Array of DNA objects
+        this.population = createFirstGeneration(this.popSize);
         this.bestFitnessesByGen = [];
 
         this.running = false;
@@ -26,7 +29,7 @@ export class App {
 
         // Simulation State
         this.world = null;
-        this.cars = []; // Objects: { dna, chassis, parts, joints, maxX, lastProgressTime, finished, carId }
+        this.cars = [];
         this.time = 0;
 
         this.requestRef = null;
@@ -147,7 +150,13 @@ export class App {
                 car.finished = true;
             }
             // 2. Stuck
-            if (this.time - car.lastProgressTime > STOP_WAIT) {
+            let waitLimit = STOP_WAIT;
+            if (car.chassis) {
+                const vel = car.chassis.getLinearVelocity().length();
+                if (vel < 0.1) waitLimit = 0.5;
+            }
+
+            if (this.time - car.lastProgressTime > waitLimit) {
                 car.finished = true;
                 // Sleep bodies to save CPU
                 car.parts.forEach(b => b.setAwake(false));
@@ -174,7 +183,7 @@ export class App {
         this.bestFitnessesByGen.push(best.fitness);
 
         // Next Gen
-        const nextDNAs = nextGeneration(results);
+        const nextDNAs = nextGeneration(results, { popSize: this.popSize, mutRate: this.mutRate });
         this.population = nextDNAs;
         this.generation++;
 
@@ -203,7 +212,7 @@ export class App {
         this.ctx.fillText(`Gen: ${this.generation}`, 10, 20);
         this.ctx.fillText(`Time: ${this.time.toFixed(1)}s`, 10, 40);
         this.ctx.fillText(`Best: ${leader.maxX.toFixed(2)}m`, 10, 60);
-        this.ctx.fillText(`Active: ${this.cars.filter(c => !c.finished).length}/${POP_SIZE}`, 10, 80);
+        this.ctx.fillText(`Active: ${this.cars.filter(c => !c.finished).length}/${this.popSize}`, 10, 80);
 
         if (this.statsCallback) {
             this.statsCallback({
@@ -225,7 +234,12 @@ export class App {
 
     reset() {
         this.generation = 1;
-        this.population = createFirstGeneration();
+        this.population = createFirstGeneration(this.popSize);
         this.startGeneration();
+    }
+
+    setSettings({ popSize, mutRate }) {
+        if (popSize !== undefined) this.popSize = popSize;
+        if (mutRate !== undefined) this.mutRate = mutRate;
     }
 }

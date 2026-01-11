@@ -5,8 +5,8 @@ import * as planck from 'planck-js';
 const SCALE = 20; // pixels per meter
 
 export function render(ctx, world, cameraX, width, height, championId) {
-    // Draw Sky
-    ctx.fillStyle = '#87CEEB'; // Sky Blue
+    // Draw Sky - LCD Green
+    ctx.fillStyle = '#c4f0c2';
     ctx.fillRect(0, 0, width, height);
 
     ctx.save();
@@ -65,13 +65,13 @@ export function render(ctx, world, cameraX, width, height, championId) {
             ctx.rotate(angle);
 
             if (isStatic) {
-                // Ground Rendering
-                ctx.fillStyle = '#505050'; // Dark Grey Solid Ground
-                ctx.strokeStyle = '#505050'; // Match fill to hide seams
+                // Ground Rendering - Dark Pixel
+                ctx.fillStyle = '#2f483a';
+                ctx.strokeStyle = '#2f483a';
             } else {
-                // Dynamic/Car
-                ctx.fillStyle = '#e55';
-                ctx.strokeStyle = '#333';
+                // Dynamic/Car - Red/Orange Accent
+                ctx.fillStyle = '#d9455f';
+                ctx.strokeStyle = '#2f483a'; // Dark outline
             }
 
             for (let f = b.getFixtureList(); f; f = f.getNext()) {

@@ -3,7 +3,14 @@ import './style.css'
 import { App } from './ui/app.js'
 
 const canvas = document.getElementById('world');
-const app = new App(canvas);
+
+// Read initial slider values
+const mutationSlider = document.getElementById('mutation-slider');
+const popSlider = document.getElementById('pop-slider');
+const initialMutRate = parseInt(mutationSlider.value) / 100;
+const initialPopSize = parseInt(popSlider.value);
+
+const app = new App(canvas, { popSize: initialPopSize, mutRate: initialMutRate });
 
 // Resize handling
 function resize() {
@@ -16,10 +23,11 @@ window.addEventListener('resize', resize);
 resize();
 
 // Start
-
 app.setStatsCallback((stats) => {
   document.getElementById('stat-gen').textContent = stats.generation;
   document.getElementById('stat-best').textContent = stats.bestFitness.toFixed(2);
+  document.getElementById('stat-mut').textContent = (app.mutRate * 100).toFixed(0) + '%';
+  document.getElementById('stat-pop').textContent = app.popSize;
 });
 
 app.start();
@@ -39,4 +47,22 @@ speedSlider.addEventListener('input', (e) => {
   const val = parseInt(e.target.value);
   app.setSpeed(val);
   speedVal.textContent = val + 'x';
+});
+
+// Mutation Rate Slider
+const mutationVal = document.getElementById('mutation-val');
+mutationSlider.addEventListener('input', (e) => {
+  const val = parseInt(e.target.value);
+  app.setSettings({ mutRate: val / 100 });
+  mutationVal.textContent = val + '%';
+  document.getElementById('stat-mut').textContent = val + '%';
+});
+
+// Population Slider
+const popVal = document.getElementById('pop-val');
+popSlider.addEventListener('input', (e) => {
+  const val = parseInt(e.target.value);
+  app.setSettings({ popSize: val });
+  popVal.textContent = val;
+  document.getElementById('stat-pop').textContent = val;
 });
