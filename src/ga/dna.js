@@ -1,7 +1,9 @@
 
+import { PART_DEFINITIONS } from '../gameConfig.js';
+
 export const PI = Math.PI;
 
-export function createRandomDNA(maxParts = 8) {
+export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 'wheel'])) {
   const parts = [];
   const joints = [];
 
@@ -27,10 +29,20 @@ export function createRandomDNA(maxParts = 8) {
     const parentId = Math.floor(Math.random() * partCount); // Pick a random existing part
     const id = partCount;
 
-    // Decide if wheel or block
+    // Decide kind based on unlocked parts
     let kind = 'block';
-    if (wheelCount < 4 && Math.random() < 0.4) {
+    if (wheelCount < 4 && unlockedParts.has('wheel') && Math.random() < 0.4) {
       kind = 'wheel';
+    } else if (Math.random() < 0.3) {
+      // Try to pick a special part
+      const options = [];
+      if (unlockedParts.has('big_wheel') && wheelCount < 4) options.push('big_wheel');
+      if (unlockedParts.has('long_body')) options.push('long_body');
+      if (unlockedParts.has('jetpack')) options.push('jetpack');
+
+      if (options.length > 0) {
+        kind = options[Math.floor(Math.random() * options.length)];
+      }
     }
 
     if (kind === 'wheel') {
@@ -44,6 +56,44 @@ export function createRandomDNA(maxParts = 8) {
         maxMotorTorque: randomRange(10, 100)
       });
       wheelCount++;
+    } else if (kind === 'big_wheel') {
+      parts.push({
+        id,
+        kind: 'wheel', // Physics collision uses 'wheel' kind check? or should we keep specific kind?
+        // PART_DEFINITIONS has kind: 'wheel', but the ID is 'big_wheel'.
+        // Let's store internal kind as 'wheel' for physics compatibility, 
+        // but maybe add a 'variant' field? OR just trust the props.
+        // Actually, buildCar uses kind === 'wheel' for circle shape.
+        // So we must set kind='wheel' in DNA, or update buildCar.
+        // Let's update buildCar to handle detailed kinds OR map them here.
+        // Better: DNA stores specific type. buildCar handles it.
+        kind: 'big_wheel',
+        radius: randomRange(PART_DEFINITIONS.big_wheel.minRadius, PART_DEFINITIONS.big_wheel.maxRadius),
+        density: randomRange(1, 4),
+        friction: randomRange(0.2, 1.0),
+        motorSpeed: randomRange(-20, 20),
+        maxMotorTorque: randomRange(10, 100)
+      });
+      wheelCount++;
+    } else if (kind === 'long_body') {
+      parts.push({
+        id,
+        kind: 'long_body',
+        w: randomRange(PART_DEFINITIONS.long_body.minW, PART_DEFINITIONS.long_body.maxW),
+        h: randomRange(PART_DEFINITIONS.long_body.minH, PART_DEFINITIONS.long_body.maxH),
+        density: randomRange(0.5, 3),
+        friction: randomRange(0.1, 0.9)
+      });
+    } else if (kind === 'jetpack') {
+      parts.push({
+        id,
+        kind: 'jetpack',
+        w: 0.5,
+        h: 0.8,
+        density: 1, // lighter?
+        friction: 0.5,
+        thrust: PART_DEFINITIONS.jetpack.thrust
+      });
     } else {
       parts.push({
         id,

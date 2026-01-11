@@ -9,3 +9,6 @@
 {"timestamp": "2026-01-10T15:15:00+08:00", "action": "VERIFY_FIX", "notes": "Testing collision fix (filterGroupIndex removed)."}
 {"timestamp": "2026-01-10T15:18:00+08:00", "action": "BUG_VERIFIED", "notes": "QA-001 Verified Fixed. Filter collision issue resolved. Cars stable on track."}
 {"timestamp": "2026-01-10T15:30:15+08:00", "action": "START_SESSION", "notes": "New QA Session. Baseline established. Viewport: 865x699. No errors."}
+{"timestamp": "2026-01-11T22:58:42+08:00", "event": "BASELINE_RECORDED", "url": "http://localhost:5173/", "status": "PASS", "notes": "Page loaded. Canvas visible. Cars moving. No major console errors."}
+{"timestamp": "2026-01-11T23:04:00+08:00", "action": "ANALYSIS", "notes": "Screenshots SS-001 to SS-006 analyzed. Baseline CPs passed."}
+{"timestamp": "2026-01-11T23:05:00+08:00", "action": "BUG_FOUND", "notes": "QA-006: Browser page crash/detach observed during high-speed (10x) run at CP-04 transition."}

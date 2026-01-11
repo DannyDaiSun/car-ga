@@ -101,3 +101,4 @@ Commit Policy
 	•	updated backlog status row
 	•	any lesson entry (if applicable)
 	•	test runtime entry (if applicable)
+	•	When each agent has finished their work properly and run all unit tests and passed, they should commit the git.

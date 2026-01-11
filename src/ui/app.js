@@ -4,6 +4,7 @@ import { createTrack } from '../physics/track.js';
 import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
 import { render } from '../render/renderWorld.js';
+import { ECONOMY } from '../gameConfig.js';
 
 const MAX_TIME = 20; // seconds
 const STOP_WAIT = 3; // seconds
@@ -21,8 +22,14 @@ export class App {
         this.mutRate = options.mutRate ?? 0.02;
         this.maxParts = options.maxParts ?? 8;
 
+        // Economy & State
+        this.money = 0;
+        this.unlockedParts = new Set(['block', 'wheel']);
+        this.lastMilestone = 0; // For economy rewards
+        this.historicalMaxX = 0;
+
         this.generation = 1;
-        this.population = createFirstGeneration(this.popSize, this.maxParts);
+        this.population = createFirstGeneration(this.popSize, this.maxParts, this.unlockedParts);
         this.bestFitnessesByGen = [];
 
         this.running = false;
@@ -33,11 +40,31 @@ export class App {
         this.cars = [];
         this.time = 0;
 
-        // Mini-map: Track the furthest distance ever reached
-        this.historicalMaxX = 0;
-
         this.requestRef = null;
         this.statsCallback = null;
+        this.cameraX = 0;
+    }
+
+    addMoney(amount) {
+        this.money += amount;
+        this.showToast(`Milestone Reached! +$${amount}`);
+        if (this.updateStoreBadge) this.updateStoreBadge();
+    }
+
+    unlockPart(partId) {
+        this.unlockedParts.add(partId);
+    }
+
+    showToast(msg) {
+        const container = document.getElementById('game-container') || document.body;
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = msg;
+        container.appendChild(toast);
+        // CSS animation handles fadeout, but we should remove element
+        setTimeout(() => {
+            if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 3000);
     }
 
     setStatsCallback(cb) {
@@ -122,6 +149,28 @@ export class App {
             if (car.finished) return;
             activeCount++;
 
+            // Apply Jetpack Forces
+            car.parts.forEach((body, partId) => {
+                // We need to look up the part definition from the DNA to know if it's a jetpack
+                // But map is id->body. We have dna.parts array.
+                // Helper: find partDef for this body
+                const partDef = car.dna.parts.find(p => p.id === partId);
+                if (partDef && partDef.kind === 'jetpack') {
+                    // Apply force in local 'right' direction (or up?)
+                    // Usually jetpack pushes forward or up. Let's say forward-ish relative to body angle.
+                    // Or standard: Apply force at center in local positive X direction?
+                    // "Thrust" property in DNA.
+                    const thrust = partDef.thrust || 100;
+                    const f = body.getWorldVector(planck.Vec2(Math.cos(0), Math.sin(0))); // Local right ?
+                    // Actually, if we want it to push "forward", it depends on how the part is oriented.
+                    // block w/h. Let's assume force is along local X axis.
+                    f.mul(thrust);
+
+                    // Simple: Apply force to center
+                    body.applyForceToCenter(f, true);
+                }
+            });
+
             // Check Joints (Breaking)
             // Iterate backwards to remove
             for (let i = car.joints.length - 1; i >= 0; i--) {
@@ -148,6 +197,17 @@ export class App {
                     // Update historical max for mini-map
                     if (x > this.historicalMaxX) {
                         this.historicalMaxX = x;
+
+                        // Check for money milestones
+                        // e.g. every 50m
+                        if (x > this.lastMilestone + ECONOMY.MILESTONE_DISTANCE) {
+                            const milestonesPassed = Math.floor((x - this.lastMilestone) / ECONOMY.MILESTONE_DISTANCE);
+                            if (milestonesPassed > 0) {
+                                this.addMoney(milestonesPassed * ECONOMY.MONEY_PER_MILESTONE);
+                                this.lastMilestone += milestonesPassed * ECONOMY.MILESTONE_DISTANCE;
+                                // Force UI update if needed (will happen next draw)
+                            }
+                        }
                     }
                 }
             }
@@ -191,7 +251,12 @@ export class App {
         this.bestFitnessesByGen.push(best.fitness);
 
         // Next Gen
-        const nextDNAs = nextGeneration(results, { popSize: this.popSize, mutRate: this.mutRate, maxParts: this.maxParts });
+        const nextDNAs = nextGeneration(results, {
+            popSize: this.popSize,
+            mutRate: this.mutRate,
+            maxParts: this.maxParts,
+            unlockedParts: this.unlockedParts
+        });
         this.population = nextDNAs;
         this.generation++;
 
@@ -214,15 +279,22 @@ export class App {
             leader = this.cars.reduce((a, b) => a.maxX > b.maxX ? a : b);
         }
 
-        const cameraX = leader.chassis ? leader.chassis.getPosition().x : 0;
+        const targetCamX = leader.chassis ? leader.chassis.getPosition().x : 0;
+        // Loose tracking: Lerp towards target
+        const lerpFactor = 0.1;
+        this.cameraX += (targetCamX - this.cameraX) * lerpFactor;
+
+        const cameraX = this.cameraX;
 
         // Prepare mini-map data
         const miniMapData = {
             cars: this.cars.map(c => ({
+                id: c.carId,
                 x: c.chassis ? c.chassis.getPosition().x : 0,
                 finished: c.finished
             })),
-            historicalMaxX: this.historicalMaxX
+            historicalMaxX: this.historicalMaxX,
+            trackedCarId: leader.carId
         };
 
         render(this.ctx, this.world, cameraX, this.width, this.height, leader.carId, miniMapData);
@@ -234,6 +306,7 @@ export class App {
         this.ctx.fillText(`Time: ${this.time.toFixed(1)}s`, 10, 40);
         this.ctx.fillText(`Best: ${leader.maxX.toFixed(2)}m`, 10, 60);
         this.ctx.fillText(`Active: ${this.cars.filter(c => !c.finished).length}/${this.popSize}`, 10, 80);
+        this.ctx.fillText(`Money: $${this.money}`, 10, 100);
 
         if (this.statsCallback) {
             this.statsCallback({
@@ -255,7 +328,7 @@ export class App {
 
     reset() {
         this.generation = 1;
-        this.population = createFirstGeneration(this.popSize, this.maxParts);
+        this.population = createFirstGeneration(this.popSize, this.maxParts, this.unlockedParts);
         this.startGeneration();
     }
 

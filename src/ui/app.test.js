@@ -77,7 +77,7 @@ describe('App UI Behavior', () => {
         expect(render).toHaveBeenLastCalledWith(
             expect.anything(),
             null, // world is null in test environment
-            50, // cameraX = running car's position
+            5, // cameraX = running car's position (smoothed)
             expect.anything(),
             expect.anything(),
             1, // leaderId = running car

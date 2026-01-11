@@ -6,15 +6,15 @@ import { cloneDNA, createRandomDNA } from './dna.js';
 const ELITE_COUNT = 6;
 const CROSSOVER_RATE = 0.90;
 
-export function createFirstGeneration(popSize = 100, maxParts = 8) {
+export function createFirstGeneration(popSize = 100, maxParts = 8, unlockedParts) {
     const pop = [];
     for (let i = 0; i < popSize; i++) {
-        pop.push(createRandomDNA(maxParts));
+        pop.push(createRandomDNA(maxParts, unlockedParts));
     }
     return pop;
 }
 
-export function nextGeneration(prevPop, { popSize = 100, mutRate = 0.02, maxParts = 8 } = {}) {
+export function nextGeneration(prevPop, { popSize = 100, mutRate = 0.02, maxParts = 8, unlockedParts } = {}) {
     // prevPop is array of { dna, fitness }
 
     // 1. Sort by fitness desc
@@ -27,7 +27,7 @@ export function nextGeneration(prevPop, { popSize = 100, mutRate = 0.02, maxPart
             nextDNAs.push(cloneDNA(sorted[i].dna));
         } else {
             // Fallback if small pop
-            nextDNAs.push(createRandomDNA(maxParts));
+            nextDNAs.push(createRandomDNA(maxParts, unlockedParts));
         }
     }
 

@@ -64,9 +64,9 @@ export function buildCar(world, dna, position, carId) {
         body.setUserData({ carId: carId });
 
         let shape;
-        if (partDef.kind === 'block') {
+        if (partDef.kind === 'block' || partDef.kind === 'long_body' || partDef.kind === 'jetpack') {
             shape = planck.Box(partDef.w / 2, partDef.h / 2); // Box takes half-width/height
-        } else if (partDef.kind === 'wheel') {
+        } else if (partDef.kind === 'wheel' || partDef.kind === 'big_wheel') {
             shape = planck.Circle(partDef.radius);
         }
 
@@ -144,7 +144,7 @@ export function buildCar(world, dna, position, carId) {
                 enableLimit: j.enableLimit,
                 lowerAngle: j.lowerAngle,
                 upperAngle: j.upperAngle,
-                enableMotor: (definitions.get(j.childId).kind === 'wheel'),
+                enableMotor: (definitions.get(j.childId).kind === 'wheel' || definitions.get(j.childId).kind === 'big_wheel'),
                 motorSpeed: definitions.get(j.childId).motorSpeed || 0,
                 maxMotorTorque: definitions.get(j.childId).maxMotorTorque || 0
             }, parent, child, anchorWorld);

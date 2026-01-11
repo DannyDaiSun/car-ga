@@ -1,1 +1,45 @@
-[]
+[
+    {
+        "id": "SS-001",
+        "critical_point": "CP-01",
+        "description": "Landing Page",
+        "file": "cp_01_landing_1768143683620.png",
+        "ts": "1768143683620"
+    },
+    {
+        "id": "SS-002",
+        "critical_point": "CP-02",
+        "description": "Spawning Phase",
+        "file": "cp_02_spawning_retry_1768143724855.png",
+        "ts": "1768143724855"
+    },
+    {
+        "id": "SS-003",
+        "critical_point": "CP-03",
+        "description": "Mid-run visualization",
+        "file": "cp_03_mid_run_1768143747812.png",
+        "ts": "1768143747812"
+    },
+    {
+        "id": "SS-004",
+        "critical_point": "CP-04",
+        "description": "Generation Transition (Gen 4)",
+        "file": "cp_04_gen_transition_1768143967009.png",
+        "ts": "1768143967009",
+        "notes": "Recovered after page crash/not found error."
+    },
+    {
+        "id": "SS-005",
+        "critical_point": "CP-06",
+        "description": "Controls - Paused",
+        "file": "cp_06_controls_pause_1768143983467.png",
+        "ts": "1768143983467"
+    },
+    {
+        "id": "SS-006",
+        "critical_point": "CP-05",
+        "description": "Reset State",
+        "file": "cp_05_reset_1768144002392.png",
+        "ts": "1768144002392"
+    }
+]

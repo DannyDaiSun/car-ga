@@ -228,6 +228,23 @@ function renderMiniMap(ctx, miniMapData, width, height) {
             ctx.arc(dotX, dotY, dotRadius, 0, 2 * PI);
             ctx.fillStyle = car.finished ? '#5e4b6c' : '#d9455f'; // Finished = muted, Active = red
             ctx.fill();
+
+            // Draw tracked car indicator (Yellow arrow pointing down to the car)
+            if (car.id === miniMapData.trackedCarId) {
+                ctx.save();
+                ctx.translate(dotX, dotY - 8); // Position above the car dot
+                ctx.beginPath();
+                ctx.moveTo(-4, -6);
+                ctx.lineTo(4, -6);
+                ctx.lineTo(0, 0); // Point down
+                ctx.closePath();
+                ctx.fillStyle = '#FFD700'; // Gold/Yellow
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.fill();
+                ctx.stroke();
+                ctx.restore();
+            }
         }
     });
 

@@ -7,3 +7,4 @@
 | QA-003 | Sidebar metrics (Gen, Best Fitness) do not update | Medium | P2 | Found |
 | QA-004 | Low contrast text on sidebar (dark blue on dark grey) | Low | P3 | Found |
 | QA-005 | Sidebar overlaps game canvas on mobile viewport | Medium | P2 | Found |
+| QA-006 | Page/Tab Crash (Page Not Found) during high-speed (10x) run | High | P1 | Found |

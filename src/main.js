@@ -1,5 +1,5 @@
 
-import './style.css'
+
 import { App } from './ui/app.js'
 import { initPartsPanel } from './ui/partsPanel.js'
 
@@ -36,8 +36,8 @@ app.setStatsCallback((stats) => {
 
 app.start();
 
-// Initialize parts panel
-initPartsPanel();
+// Init Parts Panel
+initPartsPanel(app);
 
 // Controls
 document.getElementById('btn-start').addEventListener('click', () => {
