@@ -1,0 +1,11 @@
+{"timestamp": "2026-01-10T14:21:32+08:00", "action": "START_RUN", "notes": "Run 1: Focus on immediate car drop/visibility bug."}
+{"timestamp": "2026-01-10T14:24:05+08:00", "action": "BUG_FOUND", "notes": "Car clipped in terrain at t=0.4s, gone by t=2.2s. Suspect spawn height y=4 is too low for random DNA cars."}
+{"timestamp": "2026-01-10T14:26:00+08:00", "action": "START_RUN", "notes": "Run 2: Verify fix for QA-001 (spawn height increased)."}
+{"timestamp": "2026-01-10T14:27:00+08:00", "action": "BUG_FIXED", "notes": "QA-001 verified fixed. Cars stable on track."}
+{"timestamp": "2026-01-10T14:35:00+08:00", "action": "START_PHASE_3", "notes": "Begin UX/UI testing (Controls, Responsiveness)."}
+{"timestamp": "2026-01-10T14:38:00+08:00", "action": "BUGS_FOUND", "notes": "Phase 3 complete. Found QA-002, QA-003, QA-004, QA-005."}
+{"timestamp": "2026-01-10T14:41:00+08:00", "action": "SOAK_TEST_PASS", "notes": "Run for 120s at 5x speed. No crashes. Gen 39 reached."}
+{"timestamp": "2026-01-10T15:10:00+08:00", "action": "BUG_REOPENED", "notes": "QA-001: Root cause is filterGroupIndex collision. Cars falling through track."}
+{"timestamp": "2026-01-10T15:15:00+08:00", "action": "VERIFY_FIX", "notes": "Testing collision fix (filterGroupIndex removed)."}
+{"timestamp": "2026-01-10T15:18:00+08:00", "action": "BUG_VERIFIED", "notes": "QA-001 Verified Fixed. Filter collision issue resolved. Cars stable on track."}
+{"timestamp": "2026-01-10T15:30:15+08:00", "action": "START_SESSION", "notes": "New QA Session. Baseline established. Viewport: 865x699. No errors."}
