@@ -39,3 +39,4 @@ Run all tests: `npx vitest run`
 | B-33 | Sidebar text uses high-contrast pixel dark color | ✅ | src/style.test.js |
 | B-34 | Mobile sidebar stays in layout without overlapping the canvas | ✅ | src/style.test.js |
 | B-35 | High speed simulation caps steps per frame | ✅ | src/ui/app.test.js |
+| B-31 | GitHub Pages deploys site on push to main | ✅ | src/pages-workflow.test.js |
