@@ -6,7 +6,7 @@ import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
 import { render } from '../render/renderWorld.js';
 import { ECONOMY } from '../gameConfig.js';
 
-const MAX_TIME = 20; // seconds
+
 const STOP_WAIT = 3; // seconds
 const MIN_PROGRESS = 0.05; // meters
 
@@ -214,9 +214,7 @@ export class App {
 
             // Check Stop Conditions
             // 1. Time limit (global or local?) -> Global 20s max
-            if (this.time > MAX_TIME) {
-                car.finished = true;
-            }
+
             // 2. Stuck
             let waitLimit = STOP_WAIT;
             if (car.chassis) {
