@@ -1,5 +1,10 @@
 import { PART_DEFINITIONS } from '../gameConfig.js';
 
+const ICON_SIZE = 44;
+const ICON_FILL = '#d9455f';
+const ICON_STROKE = '#2f483a';
+const WHEEL_KINDS = new Set(['wheel', 'big_wheel', 'small_wheel', 'tiny_wheel']);
+
 /**
  * Initialize the parts panel toggle and populate the grid
  * @param {App} app - The main App instance
@@ -113,10 +118,8 @@ function renderPartsList(container, app, refreshCallback) {
             slot.classList.add('locked');
         }
 
-        // Icon with emoji
-        const icon = document.createElement('div');
-        icon.className = 'part-icon';
-        icon.textContent = part.icon || '❓';
+        // Icon preview using the same polygon style as the main render
+        const icon = createPartIcon(part);
 
         const infoDiv = document.createElement('div');
         infoDiv.className = 'part-info';
@@ -170,4 +173,53 @@ function renderPartsList(container, app, refreshCallback) {
         slot.appendChild(infoDiv);
         container.appendChild(slot);
     });
+}
+
+function createPartIcon(part) {
+    const canvas = document.createElement('canvas');
+    canvas.className = 'part-icon';
+    canvas.width = ICON_SIZE;
+    canvas.height = ICON_SIZE;
+    canvas.setAttribute('aria-label', part.label);
+
+    if (typeof CanvasRenderingContext2D !== 'undefined') {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            drawPartPreview(ctx, part);
+        }
+    }
+
+    return canvas;
+}
+
+function drawPartPreview(ctx, part) {
+    const center = ICON_SIZE / 2;
+    ctx.clearRect(0, 0, ICON_SIZE, ICON_SIZE);
+    ctx.fillStyle = ICON_FILL;
+    ctx.strokeStyle = ICON_STROKE;
+    ctx.lineWidth = 2;
+
+    if (WHEEL_KINDS.has(part.kind)) {
+        const radius = 14;
+        ctx.beginPath();
+        ctx.arc(center, center, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+        return;
+    }
+
+    let width = 24;
+    let height = 24;
+    if (part.kind === 'long_body') {
+        width = 32;
+        height = 10;
+    } else if (part.kind === 'jetpack') {
+        width = 18;
+        height = 28;
+    }
+
+    ctx.beginPath();
+    ctx.rect(center - width / 2, center - height / 2, width, height);
+    ctx.fill();
+    ctx.stroke();
 }
