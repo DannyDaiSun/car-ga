@@ -37,3 +37,4 @@
 - src/ga/mutate.test.js > mutate.js mutatePerField with rate=0 preserves original values: 2.051601000000005ms (vitest report on 2026-01-12). Remediation pending.
 - src/playwright-config.test.js > playwright config reuses an existing server on CI: 538ms (vitest report on 2026-01-12). Remediation pending.
 - src/ui/app.test.js > resets camera position when starting a generation: 25ms (vitest report on 2026-01-12). Remediation pending.
+- src/ui/controls.test.js > invokes togglePause when the pause button is clicked: 24ms (vitest report on 2026-01-12). Remediation pending.

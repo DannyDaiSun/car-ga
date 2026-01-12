@@ -24,3 +24,28 @@ describe('parts panel icons', () => {
         expect(icon?.tagName).toBe('CANVAS');
     });
 });
+
+describe('parts panel toggle', () => {
+    it('inserts the money display without throwing when grid is nested', () => {
+        document.body.innerHTML = `
+            <div id="parts-panel">
+                <button id="parts-toggle"></button>
+                <div class="parts-content">
+                    <div id="parts-grid"></div>
+                </div>
+            </div>
+        `;
+
+        const app = {
+            unlockedParts: new Set(['block', 'wheel']),
+            money: 0,
+            unlockPart: () => {}
+        };
+
+        initPartsPanel(app);
+
+        const moneyDisplay = document.getElementById('panel-money');
+
+        expect(moneyDisplay).toBeTruthy();
+    });
+});
