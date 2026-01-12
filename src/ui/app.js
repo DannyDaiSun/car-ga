@@ -18,9 +18,9 @@ export class App {
         this.height = canvas.height;
 
         // GA Settings (configurable)
-        this.popSize = options.popSize ?? 100;
-        this.mutRate = options.mutRate ?? 0.02;
-        this.maxParts = options.maxParts ?? 8;
+        this.popSize = options.popSize ?? 200;
+        this.mutRate = options.mutRate ?? 0.05;
+        this.maxParts = options.maxParts ?? 12;
 
         // Economy & State
         this.money = ECONOMY.STARTING_MONEY;
@@ -149,6 +149,16 @@ export class App {
         this.cars.forEach(car => {
             if (car.finished) return;
             activeCount++;
+
+            if (car.chassis) {
+                const position = car.chassis.getPosition();
+                if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
+                    car.finished = true;
+                    car.parts.forEach(b => b.setAwake(false));
+                    car.fitness = Math.max(0, car.maxX);
+                    return;
+                }
+            }
 
             // Apply Jetpack Forces
             car.parts.forEach((body, partId) => {
