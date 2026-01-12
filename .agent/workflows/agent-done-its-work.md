@@ -7,7 +7,7 @@ description: Run after completing work to verify tests pass and commit changes
 ## Test Framework
 
 **This project uses Vitest** as the test runner.
-- Run all tests: `npx vitest run`
+- Run all tests: `npm run test`
 - Run a single test file: `npx vitest run <path/to/file.test.js>`
 - Watch mode: `npx vitest`
 
@@ -17,12 +17,26 @@ description: Run after completing work to verify tests pass and commit changes
 
 // turbo
 ```bash
-npx vitest run
+npm run test
 ```
 
 Check the output:
 - ✅ **All tests pass** → Proceed to Step 2
 - ❌ **Any test fails** → Proceed to Step 3
+
+---
+
+## Step 1B — Run E2E Tests for UI Changes (Before PR)
+
+If your work **edits UI layout or makes UI changes**, you must run E2E tests before issuing a PR:
+
+```bash
+npm run test:e2e
+```
+
+Check the output:
+- ✅ **All E2E tests pass** → Proceed to Step 2
+- ❌ **Any E2E test fails** → Proceed to Step 3
 
 ---
 
@@ -71,7 +85,7 @@ If any tests failed:
            ▼
 ┌─────────────────────┐
 │  Run All Tests      │
-│  npx vitest run     │
+│  npm run test       │
 └──────────┬──────────┘
            │
      ┌─────┴─────┐
@@ -97,4 +111,3 @@ If any tests failed:
 2. **Fix before commit** - Enter fix-bugs workflow if any test fails
 3. **Loop until green** - Restart this workflow after each fix attempt
 4. **One behavior per commit** - Don't batch multiple behaviors
-

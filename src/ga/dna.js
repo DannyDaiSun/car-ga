@@ -48,13 +48,15 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
     }
 
     if (kind === 'wheel') {
+      const def = PART_DEFINITIONS.wheel;
+      const baseMotorSpeed = randomRange(-20, 20);
       parts.push({
         id,
         kind: 'wheel',
         radius: randomRange(0.3, 0.8),
         density: randomRange(1, 4),
         friction: randomRange(0.2, 1.0),
-        motorSpeed: randomRange(-20, 20),
+        motorSpeed: baseMotorSpeed * def.motorMultiplier,
         maxMotorTorque: randomRange(10, 100)
       });
       wheelCount++;
