@@ -19,12 +19,12 @@ export class App {
         this.height = canvas.height;
 
         // GA Settings (configurable)
-        this.popSize = options.popSize ?? 100;
-        this.mutRate = options.mutRate ?? 0.02;
-        this.maxParts = options.maxParts ?? 8;
+        this.popSize = options.popSize ?? 200;
+        this.mutRate = options.mutRate ?? 0.05;
+        this.maxParts = options.maxParts ?? 12;
 
         // Economy & State
-        this.money = 0;
+        this.money = ECONOMY.STARTING_MONEY;
         this.unlockedParts = new Set(['block', 'wheel']);
         this.lastMilestone = 0; // For economy rewards
         this.historicalMaxX = 0;
@@ -89,6 +89,7 @@ export class App {
         // Build Cars
         this.cars = [];
         this.time = 0;
+        this.cameraX = 0;
 
         this.population.forEach((dna, index) => {
             const startPos = planck.Vec2(0, 10); // Check QA-001: Increased from 4 to 10 to prevent clipping
@@ -150,6 +151,16 @@ export class App {
         this.cars.forEach(car => {
             if (car.finished) return;
             activeCount++;
+
+            if (car.chassis) {
+                const position = car.chassis.getPosition();
+                if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
+                    car.finished = true;
+                    car.parts.forEach(b => b.setAwake(false));
+                    car.fitness = Math.max(0, car.maxX);
+                    return;
+                }
+            }
 
             // Apply Jetpack Forces
             car.parts.forEach((body, partId) => {

@@ -40,3 +40,5 @@
 - src/physics/jetpack.test.js > returns false outside the boost window: 5ms (vitest report on 2026-01-12). Remediation pending.
 - src/render/renderWorld.test.js > uses a distinct fill for jetpacks: 5ms (vitest report on 2026-01-12). Remediation pending.
 - src/render/renderWorld.test.js > uses different wheel detail scales for big and tiny wheels: 6ms (vitest report on 2026-01-12). Remediation pending.
+- src/ui/app.test.js > resets camera position when starting a generation: 25ms (vitest report on 2026-01-12). Remediation pending.
+- src/ui/controls.test.js > invokes togglePause when the pause button is clicked: 24ms (vitest report on 2026-01-12). Remediation pending.

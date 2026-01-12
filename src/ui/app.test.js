@@ -2,6 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { App } from './app.js';
 import { render } from '../render/renderWorld.js';
+import { PART_DEFINITIONS } from '../gameConfig.js';
 
 // Mock dependencies that might cause issues in Node environment
 // renderWorld uses CanvasRenderingContext2D methods.
@@ -22,6 +23,14 @@ vi.mock('../ga/evolve.js', () => ({
 }));
 
 describe('App UI Behavior', () => {
+    it('uses tuned GA defaults when no options are provided', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        expect(app).toMatchObject({ popSize: 200, mutRate: 0.05, maxParts: 12 });
+    });
+
     it('reports statistics during draw loop', () => {
         // Mock Canvas
         const mockCtx = {
@@ -148,5 +157,57 @@ describe('App UI Behavior', () => {
         global.requestAnimationFrame = originalRaf;
 
         expect(app.stepSimulation).toHaveBeenCalledTimes(5);
+    });
+
+    it('resets camera position when starting a generation', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        app.cameraX = 120;
+
+        app.startGeneration();
+
+        expect(app.cameraX).toBe(0);
+    });
+  
+    it('starts with enough money to buy at least two parts', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const prices = Object.values(PART_DEFINITIONS)
+            .map(part => part.price)
+            .filter(price => price > 0)
+            .sort((a, b) => a - b);
+        const minimumTwoPartTotal = prices[0] + prices[1];
+
+        expect(app.money).toBeGreaterThanOrEqual(minimumTwoPartTotal);
+    });
+  
+    it('marks cars with non-finite chassis positions as finished', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const body = { setAwake: vi.fn() };
+
+        app.world = { step: vi.fn() };
+        app.cars = [{
+            carId: 0,
+            dna: { parts: [{ id: 0, kind: 'block' }] },
+            parts: new Map([[0, body]]),
+            joints: [],
+            chassis: {
+                getPosition: () => ({ x: Number.NaN, y: 0 }),
+                getLinearVelocity: () => ({ length: () => 1 })
+            },
+            maxX: 0,
+            lastProgressTime: 0,
+            finished: false,
+            fitness: 0
+        }];
+
+        app.stepSimulation(1 / 60);
+
+        expect(app.cars[0].finished).toBe(true);
     });
 });

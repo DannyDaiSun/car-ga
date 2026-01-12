@@ -96,12 +96,18 @@ function updateMoneyDisplay(app) {
     let el = document.getElementById('panel-money');
     if (!el) {
         const p = document.getElementById('parts-panel');
+        const content = p?.querySelector('.parts-content');
+        const grid = content?.querySelector('#parts-grid');
         el = document.createElement('div');
         el.id = 'panel-money';
         el.style.padding = '10px';
         el.style.fontWeight = 'bold';
         el.style.color = '#ffd700'; // Gold
-        p.insertBefore(el, p.querySelector('#parts-grid'));
+        if (content && grid) {
+            content.insertBefore(el, grid);
+        } else if (p) {
+            p.appendChild(el);
+        }
     }
     el.textContent = `Money: $${app.money}`;
 }
