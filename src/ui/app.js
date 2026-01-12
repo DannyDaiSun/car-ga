@@ -88,6 +88,7 @@ export class App {
         // Build Cars
         this.cars = [];
         this.time = 0;
+        this.cameraX = 0;
 
         this.population.forEach((dna, index) => {
             const startPos = planck.Vec2(0, 10); // Check QA-001: Increased from 4 to 10 to prevent clipping

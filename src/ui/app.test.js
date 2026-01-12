@@ -159,6 +159,18 @@ describe('App UI Behavior', () => {
         expect(app.stepSimulation).toHaveBeenCalledTimes(5);
     });
 
+    it('resets camera position when starting a generation', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        app.cameraX = 120;
+
+        app.startGeneration();
+
+        expect(app.cameraX).toBe(0);
+    });
+  
     it('starts with enough money to buy at least two parts', () => {
         const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
         const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
@@ -170,6 +182,8 @@ describe('App UI Behavior', () => {
         const minimumTwoPartTotal = prices[0] + prices[1];
 
         expect(app.money).toBeGreaterThanOrEqual(minimumTwoPartTotal);
+    });
+  
     it('marks cars with non-finite chassis positions as finished', () => {
         const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
         const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
