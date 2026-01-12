@@ -557,6 +557,69 @@ input[type=range] {
   font-weight: bold;
 }
 
+/* Mobile Layout Classes */
+#app.mobile-layout {
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  border-radius: 0;
+  max-width: none;
+  max-height: none;
+  padding: 10px;
+}
+
+#app.mobile-layout #sidebar {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: auto;
+  max-height: 25vh;
+  flex: 0 0 auto;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--gb-accent);
+}
+
+#app.mobile-layout #game-container {
+  border-radius: 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+#app.mobile-layout .controls {
+  flex-direction: row;
+  flex-wrap: wrap;
+  padding-top: 0;
+  gap: 8px;
+  align-items: center;
+}
+
+#app.mobile-layout #stats {
+  display: none;
+}
+
+#app.mobile-landscape {
+  flex-direction: row;
+}
+
+#app.mobile-landscape #sidebar {
+  width: 35vw;
+  max-width: 320px;
+  height: auto;
+  max-height: none;
+  flex-direction: column;
+  align-items: flex-start;
+  border-bottom: none;
+  border-right: 2px solid var(--gb-accent);
+}
+
+#app.mobile-landscape .controls {
+  flex-direction: column;
+  align-items: stretch;
+}
+
 /* Mobile Responsiveness (QA-005) */
 @media (max-width: 768px) {
   #app {

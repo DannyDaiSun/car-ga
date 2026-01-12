@@ -40,3 +40,5 @@ Run all tests: `npx vitest run`
 | B-34 | Mobile sidebar stays in layout without overlapping the canvas | ✅ | src/style.test.js |
 | B-35 | High speed simulation caps steps per frame | ✅ | src/ui/app.test.js |
 | B-31 | GitHub Pages deploys site on push to main | ✅ | src/pages-workflow.test.js |
+| B-36 | Mobile layout detection returns portrait mode for mobile user agents | ✅ | src/ui/layout.test.js |
+| B-37 | Mobile layout detection returns landscape mode when viewport is wide | ✅ | src/ui/layout.test.js |

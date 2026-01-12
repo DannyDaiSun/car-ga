@@ -2,6 +2,7 @@
 
 import { App } from './ui/app.js'
 import { initPartsPanel } from './ui/partsPanel.js'
+import { applyMobileLayout } from './ui/layout.js';
 
 const canvas = document.getElementById('world');
 
@@ -39,6 +40,9 @@ document.getElementById('btn-start').textContent = 'PAUSE'; // Reflect running s
 
 // Init Parts Panel
 initPartsPanel(app);
+applyMobileLayout();
+window.addEventListener('resize', () => applyMobileLayout());
+window.addEventListener('orientationchange', () => applyMobileLayout());
 
 // Controls
 document.getElementById('btn-start').addEventListener('click', () => {
