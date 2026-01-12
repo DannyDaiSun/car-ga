@@ -8,6 +8,7 @@
 - src/pages-workflow.test.js > deploys the built site on pushes to main: 3ms (vitest report on 2025-09-21). Remediation pending.
 - src/ui/layout.test.js > returns portrait mode for mobile user agents: 4ms (vitest report on 2025-09-21). Remediation pending.
 - src/ui/layout.test.js > returns landscape mode when the viewport is wider than tall on mobile: 4ms (vitest report on 2025-09-21). Remediation pending.
+- src/behavior-backlog.test.js > directs new behaviors into agent/behaviors: 5ms (vitest report on 2026-01-12). Remediation pending.
 - src/physics/simulate.test.js > Simulation starts with finished=false: 138ms (vitest report on 2026-01-12). Remediation pending.
 - src/physics/simulate.test.js > getFitness returns non-negative number: 78ms (vitest report on 2026-01-12). Remediation pending.
 - src/ga/integration.test.js > successfully evolves to next generation when cars finish: 803ms (vitest report on 2026-01-12). Remediation pending.
