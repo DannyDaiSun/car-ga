@@ -6,3 +6,5 @@
 - src/vitest-config.test.js > excludes e2e tests from unit runs: 3ms (vitest report on 2025-09-21). Remediation pending.
 - src/ga/integration.test.js > successfully evolves to next generation when cars finish: 797ms (vitest report on 2025-09-21). Remediation pending.
 - src/pages-workflow.test.js > deploys the built site on pushes to main: 3ms (vitest report on 2025-09-21). Remediation pending.
+- src/ui/layout.test.js > returns portrait mode for mobile user agents: 4ms (vitest report on 2025-09-21). Remediation pending.
+- src/ui/layout.test.js > returns landscape mode when the viewport is wider than tall on mobile: 4ms (vitest report on 2025-09-21). Remediation pending.
