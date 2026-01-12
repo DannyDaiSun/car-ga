@@ -96,7 +96,8 @@ jobs:
               repo: context.repo.repo,
               title: `🔴 QA Failed: E2E tests failing (Run #${{ github.run_number }})`,
               body: issueBody,
-              labels: ['bug', 'qa-failure', 'needs-investigation']
+              labels: ['bug', 'qa-failure', 'needs-investigation'],
+              assignees: [context.repo.owner],
             });
 
       - name: Fail if tests failed

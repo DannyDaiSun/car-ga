@@ -17,6 +17,7 @@ jobs:
             const issueNumber = context.issue.number;
             const owner = context.repo.owner;
             const repo = context.repo.repo;
+            const assignee = context.payload.issue?.user?.login;
 
             await github.rest.issues.addLabels({
               owner,
@@ -24,6 +25,15 @@ jobs:
               issue_number: issueNumber,
               labels: ['codex'],
             });
+
+            if (assignee) {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                assignees: [assignee],
+              });
+            }
 
             await github.rest.issues.createComment({
               owner,
