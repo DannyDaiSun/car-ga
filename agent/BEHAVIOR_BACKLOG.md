@@ -42,5 +42,6 @@ Run all tests: `npm run test`
 | B-31 | GitHub Pages deploys site on push to main | ✅ | src/pages-workflow.test.js |
 | B-36 | Mobile layout detection returns portrait mode for mobile user agents | ✅ | src/ui/layout.test.js |
 | B-37 | Mobile layout detection returns landscape mode when viewport is wide | ✅ | src/ui/layout.test.js |
+| B-38 | Parts panel renders canvas previews for part icons | ✅ | src/ui/partsPanel.test.js |
 | B-38 | Agent workflow runs E2E tests before PRs when UI changes occur | ✅ | .agent/workflows/agent-done-its-work.md |
 | B-38 | createRandomDNA scales standard wheel motor speed with the wheel multiplier | ✅ | src/ga/dna.test.js |
