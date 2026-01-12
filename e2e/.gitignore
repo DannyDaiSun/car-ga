@@ -1,0 +1,11 @@
+# Playwright test results
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Screenshots taken during tests
+*.png
+!public/**/*.png
+
+# Test artifacts
+blob-report/

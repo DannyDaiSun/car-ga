@@ -1,6 +1,6 @@
 # Agent Instructions for car-ga
 
-This document provides guidance for AI coding agents working on this project.
+This document provides guidance for AI coding agents (including Codex, Antigravity, and others) working on this project.
 
 ---
 
@@ -65,9 +65,11 @@ All artifacts live under `./agent/`.
 
 ### Test Framework
 
-- **Framework**: Vitest
-- **Run all tests command**: `npx vitest run`
-- Record this command at the top of `BEHAVIOR_BACKLOG.md`
+- **Framework**: Vitest (unit tests), Playwright (E2E tests)
+- **Run unit tests**: `npm run test`
+- **Run E2E tests**: `npm run test:e2e`
+- **Run all tests**: `npm run test:all`
+- Record the test command at the top of `BEHAVIOR_BACKLOG.md`
 
 ---
 
@@ -95,12 +97,72 @@ All artifacts live under `./agent/`.
 
 ---
 
+## 🔄 Evidence-Driven Bug Fix Workflow
+
+When a QA failure occurs (from scheduled Playwright runs or manual testing), follow this exact process:
+
+### Step 1: Reproduce
+
+1. Download artifacts from the failed GitHub Actions run
+2. Review the Playwright HTML report
+3. Identify the specific failing test(s)
+4. Reproduce locally: `npm run test:e2e`
+5. Document reproduction steps in the issue/PR
+
+### Step 2: Write Failing Test
+
+1. If no test exists for the bug, create one in `e2e/` or `src/**/*.test.js`
+2. The test MUST fail before the fix
+3. Commit: `git commit -m "test: add failing test for <bug description>"`
+
+### Step 3: Fix
+
+1. Implement the minimal fix
+2. Run `npm run test` to verify unit tests pass
+3. Run `npm run test:e2e` to verify E2E tests pass
+4. Commit: `git commit -m "fix: <bug description>"`
+
+### Step 4: Verify
+
+1. Run full test suite: `npm run test:all`
+2. Run lint: `npm run lint`
+3. Create PR with:
+   - Reference to the original issue
+   - Link to failing run artifacts
+   - Before/after screenshots (if visual)
+   - Summary of what was fixed
+
+### Step 5: Summarize
+
+In the PR description, include:
+```markdown
+## Bug Fix Summary
+
+**Issue:** #<issue_number>
+**Failed Run:** [Link to GitHub Actions run]
+
+### Root Cause
+<Brief explanation of why the bug occurred>
+
+### Fix
+<What was changed to fix it>
+
+### Verification
+- [ ] Unit tests pass
+- [ ] E2E tests pass
+- [ ] Lint passes
+- [ ] Manual verification (if applicable)
+```
+
+---
+
 ## Project Overview
 
 **car-ga** is a genetic algorithm car evolution simulation game built with:
 - **Vite** - Build tool and dev server
 - **Planck.js** - 2D physics engine (Box2D port)
-- **Vitest** - Testing framework
+- **Vitest** - Unit testing framework
+- **Playwright** - E2E testing framework
 - **Vanilla JS** - No framework, ES modules
 
 ## Directory Structure
@@ -112,9 +174,12 @@ car-ga/
 │   ├── physics/      # Physics simulation (buildCar, simulate, track)
 │   ├── ui/           # UI components (app, store, minimap)
 │   └── *.js          # Core modules (gameConfig, etc.)
+├── e2e/              # Playwright E2E tests
 ├── public/           # Static assets (images, fonts)
 ├── agent/            # TDD artifacts (BEHAVIOR_BACKLOG.md)
 ├── .agent/workflows/ # Workflow definitions
+├── .codex/           # Codex setup scripts
+├── .github/workflows # GitHub Actions CI/CD
 ├── qa/               # QA testing artifacts
 ├── index.html        # Entry point
 └── style.css         # Global styles
@@ -126,29 +191,31 @@ car-ga/
 # Start dev server
 npm run dev
 
-# Run all unit tests
-npx vitest run
+# Run unit tests
+npm run test
 
-# Run tests in watch mode
-npx vitest
+# Run E2E tests
+npm run test:e2e
+
+# Run E2E tests with UI
+npm run test:e2e:ui
+
+# Run all tests
+npm run test:all
+
+# Lint code
+npm run lint
 
 # Build for production
 npm run build
 ```
 
-## Testing Guidelines
+## CI/CD Pipelines
 
-- Tests use **Vitest** framework
-- Test files are co-located with source: `*.test.js`
-- Follow TDD practices as defined in `.agent/workflows/`
-- Each test should have exactly one assertion
-
-## Code Style
-
-- ES Modules (`import`/`export`)
-- Descriptive function and variable names
-- Keep functions small and focused
-- Document complex physics or GA logic with comments
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `unit-tests.yml` | Push, PR | Run unit tests |
+| `scheduled-qa.yml` | Every 6 hours, Push to main | Run E2E tests, create issues on failure |
 
 ## Important Files
 
@@ -156,6 +223,7 @@ npm run build
 - `src/ga/dna.js` - Car DNA encoding/decoding
 - `src/physics/buildCar.js` - Creates physics bodies from DNA
 - `src/ui/app.js` - Main UI controller
+- `playwright.config.js` - Playwright E2E configuration
 
 ## Workflows
 
@@ -164,3 +232,13 @@ Check `.agent/workflows/` for defined procedures:
 - `/fix-bugs` - Bug fixing process
 - `/quality-assurance` - QA testing
 - `/commit` - Commit process
+
+## Codex Environment
+
+The `.codex/` directory contains:
+- `setup.sh` - Runs during container creation (installs deps, Playwright)
+- `maintenance.sh` - Runs when checking out branches
+
+Configure in Codex Cloud:
+- **Setup Script**: `./.codex/setup.sh`
+- **Maintenance Script**: `./.codex/maintenance.sh`
