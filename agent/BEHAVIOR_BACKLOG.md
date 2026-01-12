@@ -1,6 +1,6 @@
 # Behavior Backlog
 
-Run all tests: `npx vitest run`
+Run all tests: `npm run test`
 
 | ID | Behavior | Status | Test File |
 |---|---|---|---|
@@ -43,3 +43,4 @@ Run all tests: `npx vitest run`
 | B-36 | Mobile layout detection returns portrait mode for mobile user agents | ✅ | src/ui/layout.test.js |
 | B-37 | Mobile layout detection returns landscape mode when viewport is wide | ✅ | src/ui/layout.test.js |
 | B-38 | Agent workflow runs E2E tests before PRs when UI changes occur | ✅ | .agent/workflows/agent-done-its-work.md |
+| B-38 | createRandomDNA scales standard wheel motor speed with the wheel multiplier | ✅ | src/ga/dna.test.js |
