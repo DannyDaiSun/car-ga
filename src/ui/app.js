@@ -150,6 +150,16 @@ export class App {
             if (car.finished) return;
             activeCount++;
 
+            if (car.chassis) {
+                const position = car.chassis.getPosition();
+                if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
+                    car.finished = true;
+                    car.parts.forEach(b => b.setAwake(false));
+                    car.fitness = Math.max(0, car.maxX);
+                    return;
+                }
+            }
+
             // Apply Jetpack Forces
             car.parts.forEach((body, partId) => {
                 // We need to look up the part definition from the DNA to know if it's a jetpack
