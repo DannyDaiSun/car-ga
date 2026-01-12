@@ -8,3 +8,19 @@
 - src/pages-workflow.test.js > deploys the built site on pushes to main: 3ms (vitest report on 2025-09-21). Remediation pending.
 - src/ui/layout.test.js > returns portrait mode for mobile user agents: 4ms (vitest report on 2025-09-21). Remediation pending.
 - src/ui/layout.test.js > returns landscape mode when the viewport is wider than tall on mobile: 4ms (vitest report on 2025-09-21). Remediation pending.
+- src/physics/simulate.test.js > Simulation starts with finished=false: 138ms (vitest report on 2026-01-12). Remediation pending.
+- src/physics/simulate.test.js > getFitness returns non-negative number: 78ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/integration.test.js > successfully evolves to next generation when cars finish: 803ms (vitest report on 2026-01-12). Remediation pending.
+- src/ui/app.test.js > reports statistics during draw loop: 5ms (vitest report on 2026-01-12). Remediation pending.
+- src/pages-workflow.test.js > deploys the built site on pushes to main: 9ms (vitest report on 2026-01-12). Remediation pending.
+- src/ui/partsPanel.test.js > renders canvas previews for part icons: 86ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/evolve.test.js > createFirstGeneration returns correct population size: 4ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/evolve.test.js > nextGeneration returns correct population size: 4ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/dna.test.js > createRandomDNA returns DNA with root part id=0: 3ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/dna.test.js > cloneDNA returns a deep copy: 3ms (vitest report on 2026-01-12). Remediation pending.
+- src/readme.test.js > includes GitHub Actions workflow badges: 3ms (vitest report on 2026-01-12). Remediation pending.
+- src/ga/select.test.js > pickParentRoulette returns cloned DNA with zero fitness population: 4ms (vitest report on 2026-01-12). Remediation pending.
+- src/issue-workflow.test.js > triggers on issues and applies the codex label: 3ms (vitest report on 2026-01-12). Remediation pending.
+- src/vitest-config.test.js > excludes e2e tests from unit runs: 5ms (vitest report on 2026-01-12). Remediation pending.
+- src/style.test.js > uses pixel-dark text color in the sidebar: 4ms (vitest report on 2026-01-12). Remediation pending.
+- src/physics/track.test.js > getTrackHeight returns 0 for flat start zone: 3ms (vitest report on 2026-01-12). Remediation pending.
