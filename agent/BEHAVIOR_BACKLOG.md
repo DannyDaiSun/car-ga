@@ -32,3 +32,6 @@ Run all tests: `npx vitest run`
 | B-26 | PART_DEFINITIONS.tiny_wheel has motorMultiplier=2.0 and breakMultiplier=0.3 | ✅ | src/gameConfig.test.js |
 | B-27 | createRandomDNA can generate small_wheel when unlocked | ✅ | src/ga/dna.test.js |
 | B-28 | createRandomDNA can generate tiny_wheel when unlocked | ✅ | src/ga/dna.test.js |
+| B-29 | README lists GitHub Actions workflow badges | ✅ | src/readme.test.js |
+| B-30 | Unit tests exclude e2e specs via Vitest config | ✅ | src/vitest-config.test.js |
+| B-31 | Issues workflow labels new issues for Codex triage | ✅ | src/issue-workflow.test.js |
