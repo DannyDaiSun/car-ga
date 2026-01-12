@@ -36,3 +36,7 @@
 - src/issue-workflow.test.js > issue triage workflow triggers on issues and applies the codex label: 2.4299650000000383ms (vitest report on 2026-01-12). Remediation pending.
 - src/ga/mutate.test.js > mutate.js mutatePerField with rate=0 preserves original values: 2.051601000000005ms (vitest report on 2026-01-12). Remediation pending.
 - src/playwright-config.test.js > playwright config reuses an existing server on CI: 538ms (vitest report on 2026-01-12). Remediation pending.
+- src/gameConfig.test.js > PART_DEFINITIONS entries include abilities: 11ms (vitest report on 2026-01-12). Remediation pending.
+- src/physics/jetpack.test.js > returns false outside the boost window: 5ms (vitest report on 2026-01-12). Remediation pending.
+- src/render/renderWorld.test.js > uses a distinct fill for jetpacks: 5ms (vitest report on 2026-01-12). Remediation pending.
+- src/render/renderWorld.test.js > uses different wheel detail scales for big and tiny wheels: 6ms (vitest report on 2026-01-12). Remediation pending.
