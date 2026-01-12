@@ -11,4 +11,10 @@ describe('gameConfig.js', () => {
     it('PART_DEFINITIONS.tiny_wheel has correct multipliers', () => {
         expect(PART_DEFINITIONS.tiny_wheel.motorMultiplier).toBe(2.0);
     });
+
+    // B-41: Given PART_DEFINITIONS, When checking part abilities, Then each part lists a non-empty ability.
+    it('PART_DEFINITIONS entries include abilities', () => {
+        const hasAbilities = Object.values(PART_DEFINITIONS).every(part => Boolean(part.ability));
+        expect(hasAbilities).toBe(true);
+    });
 });

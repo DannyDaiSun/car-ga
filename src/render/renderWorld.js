@@ -13,6 +13,9 @@ const ASSET_LIST = [
 ];
 
 function loadAssets() {
+    if (typeof Image === 'undefined') {
+        return;
+    }
     ASSET_LIST.forEach(name => {
         const img = new Image();
         img.src = `/art/${name}.png`;
@@ -20,6 +23,31 @@ function loadAssets() {
     });
 }
 loadAssets();
+
+const PART_STYLE_MAP = {
+    block: { fill: '#d9455f', stroke: '#2f483a', accent: '#f4b23f' },
+    long_body: { fill: '#4a74e0', stroke: '#1d2e66', accent: '#9bb8ff' },
+    wheel: { fill: '#43464b', stroke: '#1b1e23', accent: '#8b8f96' },
+    big_wheel: { fill: '#3d3f44', stroke: '#1b1e23', accent: '#9ba2ab' },
+    small_wheel: { fill: '#4f5258', stroke: '#1b1e23', accent: '#9ba2ab' },
+    tiny_wheel: { fill: '#5b6066', stroke: '#1b1e23', accent: '#9ba2ab' },
+    jetpack: { fill: '#ff8a3d', stroke: '#7a2f0b', accent: '#ffd066' }
+};
+
+const WHEEL_DETAIL_SCALE = {
+    wheel: 0.55,
+    big_wheel: 0.45,
+    small_wheel: 0.65,
+    tiny_wheel: 0.75
+};
+
+export function getPartRenderStyle(partKind = 'block') {
+    return PART_STYLE_MAP[partKind] ?? PART_STYLE_MAP.block;
+}
+
+export function getWheelDetailScale(partKind = 'wheel') {
+    return WHEEL_DETAIL_SCALE[partKind] ?? WHEEL_DETAIL_SCALE.wheel;
+}
 
 export function render(ctx, world, cameraX, width, height, championId, miniMapData) {
     // Draw Sky - LCD Green
@@ -75,12 +103,99 @@ function renderBody(ctx, body, isStatic) {
         ctx.strokeStyle = '#2f483a';
         renderShapes(ctx, body); // Keep shapes for ground
     } else {
-        // Car Part Rendering - Reverted to polygon style
-        ctx.fillStyle = '#d9455f'; // Red/pink accent
-        ctx.strokeStyle = '#2f483a'; // Dark outline
+        // Car Part Rendering - Distinct styles by part kind
+        const style = getPartRenderStyle(userData?.partKind);
+        ctx.fillStyle = style.fill;
+        ctx.strokeStyle = style.stroke;
         renderShapes(ctx, body);
+        drawPartDetails(ctx, body, userData?.partKind, style);
+        if (userData?.partKind === 'jetpack') {
+            drawJetpackFlame(ctx, style.accent);
+        }
     }
     ctx.restore();
+}
+
+function drawJetpackFlame(ctx, accent) {
+    ctx.save();
+    ctx.fillStyle = accent;
+    ctx.beginPath();
+    ctx.moveTo(-0.7, 0);
+    ctx.lineTo(-0.2, 0.25);
+    ctx.lineTo(-0.2, -0.25);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+}
+
+function drawPartDetails(ctx, body, partKind, style) {
+    if (!partKind) return;
+
+    if (partKind === 'block') {
+        const dims = getPolygonDimensions(body);
+        if (!dims) return;
+        ctx.save();
+        ctx.fillStyle = style.accent;
+        ctx.beginPath();
+        ctx.arc(0, 0, Math.min(dims.width, dims.height) * 0.12, 0, PI * 2);
+        ctx.fill();
+        ctx.restore();
+        return;
+    }
+
+    if (partKind === 'long_body') {
+        const dims = getPolygonDimensions(body);
+        if (!dims) return;
+        ctx.save();
+        ctx.strokeStyle = style.accent;
+        ctx.lineWidth = 0.06;
+        ctx.beginPath();
+        ctx.moveTo(-dims.width * 0.35, 0);
+        ctx.lineTo(dims.width * 0.35, 0);
+        ctx.stroke();
+        ctx.restore();
+        return;
+    }
+
+    if (partKind.includes('wheel')) {
+        const radius = getCircleRadius(body);
+        if (!radius) return;
+        ctx.save();
+        ctx.strokeStyle = style.accent;
+        ctx.lineWidth = 0.08;
+        ctx.beginPath();
+        ctx.arc(0, 0, radius * getWheelDetailScale(partKind), 0, PI * 2);
+        ctx.stroke();
+        ctx.restore();
+    }
+}
+
+function getCircleRadius(body) {
+    const fixture = body.getFixtureList();
+    if (!fixture) return null;
+    const shape = fixture.getShape();
+    if (!shape || shape.getType() !== 'circle') return null;
+    return shape.getRadius();
+}
+
+function getPolygonDimensions(body) {
+    const fixture = body.getFixtureList();
+    if (!fixture) return null;
+    const shape = fixture.getShape();
+    if (!shape || shape.getType() !== 'polygon') return null;
+    const vertices = shape.m_vertices;
+    if (!vertices || !vertices.length) return null;
+    let minX = vertices[0].x;
+    let maxX = vertices[0].x;
+    let minY = vertices[0].y;
+    let maxY = vertices[0].y;
+    for (let i = 1; i < vertices.length; i++) {
+        minX = Math.min(minX, vertices[i].x);
+        maxX = Math.max(maxX, vertices[i].x);
+        minY = Math.min(minY, vertices[i].y);
+        maxY = Math.max(maxY, vertices[i].y);
+    }
+    return { width: maxX - minX, height: maxY - minY };
 }
 
 function renderSprite(ctx, body, userData) {

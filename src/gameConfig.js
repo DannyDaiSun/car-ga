@@ -4,6 +4,7 @@ export const PART_DEFINITIONS = {
         id: 'block',
         label: 'Block',
         desc: 'Standard chassis block',
+        ability: 'Stable chassis anchor',
         price: 0,
         unlocked: true, // Default
         kind: 'block',
@@ -14,6 +15,7 @@ export const PART_DEFINITIONS = {
         id: 'wheel',
         label: 'Wheel',
         desc: 'Standard size wheel',
+        ability: 'Steady torque drive',
         price: 0,
         unlocked: true, // Default
         kind: 'wheel',
@@ -25,6 +27,7 @@ export const PART_DEFINITIONS = {
         id: 'big_wheel',
         label: 'Big Wheel',
         desc: 'Larger radius wheel for rough terrain',
+        ability: 'Terrain-clearing traction',
         price: 100,
         unlocked: false,
         kind: 'wheel',
@@ -38,6 +41,7 @@ export const PART_DEFINITIONS = {
         id: 'long_body',
         label: 'Long Bar',
         desc: 'Long, thin body part for reach',
+        ability: 'Extended chassis reach',
         price: 150,
         unlocked: false,
         kind: 'block',
@@ -52,18 +56,22 @@ export const PART_DEFINITIONS = {
     jetpack: {
         id: 'jetpack',
         label: 'Jetpack',
-        desc: 'Applies constant forward thrust',
+        desc: 'Applies periodic forward thrust bursts',
+        ability: 'Periodic boost bursts',
         price: 300,
         unlocked: false,
         kind: 'jetpack',
         icon: '🚀',
         tier: 'legendary',
-        thrust: 200 // Force amount
+        thrust: 200, // Force amount
+        boostInterval: 2.0,
+        boostDuration: 0.6
     },
     small_wheel: {
         id: 'small_wheel',
         label: 'Small Wheel',
         desc: 'Compact wheel - Faster spin, less durable',
+        ability: 'Fast spin with reduced durability',
         price: 75,
         unlocked: false,
         kind: 'small_wheel',
@@ -78,6 +86,7 @@ export const PART_DEFINITIONS = {
         id: 'tiny_wheel',
         label: 'Tiny Wheel',
         desc: 'Ultra-compact - Very fast spin, very fragile',
+        ability: 'Ultra-fast spin, fragile build',
         price: 125,
         unlocked: false,
         kind: 'tiny_wheel',

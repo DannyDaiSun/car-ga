@@ -1,8 +1,21 @@
 import { PART_DEFINITIONS } from '../gameConfig.js';
 
 const ICON_SIZE = 44;
-const ICON_FILL = '#d9455f';
-const ICON_STROKE = '#2f483a';
+const ICON_STYLE_MAP = {
+    block: { fill: '#d9455f', stroke: '#2f483a', accent: '#f4b23f' },
+    long_body: { fill: '#4a74e0', stroke: '#1d2e66', accent: '#9bb8ff' },
+    wheel: { fill: '#43464b', stroke: '#1b1e23', accent: '#8b8f96' },
+    big_wheel: { fill: '#3d3f44', stroke: '#1b1e23', accent: '#9ba2ab' },
+    small_wheel: { fill: '#4f5258', stroke: '#1b1e23', accent: '#9ba2ab' },
+    tiny_wheel: { fill: '#5b6066', stroke: '#1b1e23', accent: '#9ba2ab' },
+    jetpack: { fill: '#ff8a3d', stroke: '#7a2f0b', accent: '#ffd066' }
+};
+const WHEEL_DETAIL_SCALE = {
+    wheel: 0.55,
+    big_wheel: 0.45,
+    small_wheel: 0.65,
+    tiny_wheel: 0.75
+};
 const WHEEL_KINDS = new Set(['wheel', 'big_wheel', 'small_wheel', 'tiny_wheel']);
 
 /**
@@ -200,9 +213,10 @@ function createPartIcon(part) {
 
 function drawPartPreview(ctx, part) {
     const center = ICON_SIZE / 2;
+    const style = ICON_STYLE_MAP[part.kind] ?? ICON_STYLE_MAP.block;
     ctx.clearRect(0, 0, ICON_SIZE, ICON_SIZE);
-    ctx.fillStyle = ICON_FILL;
-    ctx.strokeStyle = ICON_STROKE;
+    ctx.fillStyle = style.fill;
+    ctx.strokeStyle = style.stroke;
     ctx.lineWidth = 2;
 
     if (WHEEL_KINDS.has(part.kind)) {
@@ -210,6 +224,11 @@ function drawPartPreview(ctx, part) {
         ctx.beginPath();
         ctx.arc(center, center, radius, 0, Math.PI * 2);
         ctx.fill();
+        ctx.stroke();
+        ctx.strokeStyle = style.accent;
+        ctx.beginPath();
+        const detailScale = WHEEL_DETAIL_SCALE[part.kind] ?? WHEEL_DETAIL_SCALE.wheel;
+        ctx.arc(center, center, radius * detailScale, 0, Math.PI * 2);
         ctx.stroke();
         return;
     }
@@ -228,4 +247,26 @@ function drawPartPreview(ctx, part) {
     ctx.rect(center - width / 2, center - height / 2, width, height);
     ctx.fill();
     ctx.stroke();
+
+    if (part.kind === 'jetpack') {
+        ctx.fillStyle = style.accent;
+        ctx.beginPath();
+        ctx.moveTo(center - width / 2 - 6, center);
+        ctx.lineTo(center - width / 2, center - 6);
+        ctx.lineTo(center - width / 2, center + 6);
+        ctx.closePath();
+        ctx.fill();
+    } else if (part.kind === 'block') {
+        ctx.fillStyle = style.accent;
+        ctx.beginPath();
+        ctx.arc(center, center, 3, 0, Math.PI * 2);
+        ctx.fill();
+    } else if (part.kind === 'long_body') {
+        ctx.strokeStyle = style.accent;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(center - width * 0.35, center);
+        ctx.lineTo(center + width * 0.35, center);
+        ctx.stroke();
+    }
 }

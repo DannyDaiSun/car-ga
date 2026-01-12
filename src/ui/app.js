@@ -3,6 +3,7 @@ import * as planck from 'planck-js';
 import { createTrack } from '../physics/track.js';
 import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
+import { isJetpackBoostActive } from '../physics/jetpack.js';
 import { render } from '../render/renderWorld.js';
 import { ECONOMY } from '../gameConfig.js';
 
@@ -168,6 +169,9 @@ export class App {
                 // Helper: find partDef for this body
                 const partDef = car.dna.parts.find(p => p.id === partId);
                 if (partDef && partDef.kind === 'jetpack') {
+                    if (!isJetpackBoostActive(this.time, partDef)) {
+                        return;
+                    }
                     // Apply force in local 'right' direction (or up?)
                     // Usually jetpack pushes forward or up. Let's say forward-ish relative to body angle.
                     // Or standard: Apply force at center in local positive X direction?
