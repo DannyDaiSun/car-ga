@@ -22,6 +22,14 @@ vi.mock('../ga/evolve.js', () => ({
 }));
 
 describe('App UI Behavior', () => {
+    it('uses tuned GA defaults when no options are provided', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        expect(app).toMatchObject({ popSize: 200, mutRate: 0.05, maxParts: 12 });
+    });
+
     it('reports statistics during draw loop', () => {
         // Mock Canvas
         const mockCtx = {
