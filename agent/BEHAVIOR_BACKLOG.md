@@ -2,6 +2,12 @@
 
 Run all tests: `npm run test`
 
+## Conflict-minimized updates
+
+To reduce merge conflicts, new behaviors are recorded as individual files under
+`agent/behaviors/` (see `agent/behaviors/README.md`). This table is legacy-only
+and should not receive new rows.
+
 | ID | Behavior | Status | Test File |
 |---|---|---|---|
 | B-1 | App reports statistics (generation, best fitness) during updates | ✅ | src/ui/app.test.js |

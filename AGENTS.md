@@ -57,7 +57,8 @@ All artifacts live under `./agent/`.
 
 | Artifact | Purpose |
 |----------|---------|
-| `agent/BEHAVIOR_BACKLOG.md` | Single source of truth for behaviors, status, and per-behavior test mapping |
+| `agent/BEHAVIOR_BACKLOG.md` | Legacy index and rules for behavior logging (conflict-minimized updates live in `agent/behaviors/`) |
+| `agent/behaviors/` | Single source of truth for behaviors, status, and per-behavior test mapping (one file per behavior) |
 | `agent/LESSONS.md` | Append-only "Verified Project Lessons." Written only when verified by evidence |
 | `agent/TEST_RUNTIME.md` | Tracks slow tests (>2ms) and remediation notes |
 
