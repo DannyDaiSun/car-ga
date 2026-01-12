@@ -149,4 +149,16 @@ describe('App UI Behavior', () => {
 
         expect(app.stepSimulation).toHaveBeenCalledTimes(5);
     });
+
+    it('resets camera position when starting a generation', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+
+        app.cameraX = 120;
+
+        app.startGeneration();
+
+        expect(app.cameraX).toBe(0);
+    });
 });
