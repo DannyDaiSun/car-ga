@@ -3,6 +3,7 @@
 import { App } from './ui/app.js'
 import { initPartsPanel } from './ui/partsPanel.js'
 import { applyMobileLayout } from './ui/layout.js';
+import { initControls } from './ui/controls.js';
 
 const canvas = document.getElementById('world');
 
@@ -38,55 +39,11 @@ app.setStatsCallback((stats) => {
 app.start();
 document.getElementById('btn-start').textContent = 'PAUSE'; // Reflect running state
 
+// Controls
+initControls(app);
+
 // Init Parts Panel
 initPartsPanel(app);
 applyMobileLayout();
 window.addEventListener('resize', () => applyMobileLayout());
 window.addEventListener('orientationchange', () => applyMobileLayout());
-
-// Controls
-document.getElementById('btn-start').addEventListener('click', () => {
-  app.togglePause();
-  const btn = document.getElementById('btn-start');
-  btn.textContent = app.running ? "PAUSE" : "RESUME";
-  console.log('Pause Toggled. Running:', app.running);
-});
-
-document.getElementById('btn-reset').addEventListener('click', () => {
-  app.reset();
-});
-
-const speedSlider = document.getElementById('speed-slider');
-const speedVal = document.getElementById('speed-val');
-speedSlider.addEventListener('input', (e) => {
-  const val = parseInt(e.target.value);
-  app.setSpeed(val);
-  speedVal.textContent = val + 'x';
-});
-
-// Mutation Rate Slider
-const mutationVal = document.getElementById('mutation-val');
-mutationSlider.addEventListener('input', (e) => {
-  const val = parseInt(e.target.value);
-  app.setSettings({ mutRate: val / 100 });
-  mutationVal.textContent = val + '%';
-  document.getElementById('stat-mut').textContent = val + '%';
-});
-
-// Population Slider
-const popVal = document.getElementById('pop-val');
-popSlider.addEventListener('input', (e) => {
-  const val = parseInt(e.target.value);
-  app.setSettings({ popSize: val });
-  popVal.textContent = val;
-  document.getElementById('stat-pop').textContent = val;
-});
-
-// DNA Length Slider
-const dnaVal = document.getElementById('dna-val');
-dnaSlider.addEventListener('input', (e) => {
-  const val = parseInt(e.target.value);
-  app.setSettings({ maxParts: val });
-  dnaVal.textContent = val;
-  document.getElementById('stat-dna').textContent = val;
-});
