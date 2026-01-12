@@ -48,4 +48,31 @@ describe('dna.js', () => {
         }
         expect(found).toBe(true);
     });
+
+    // B-38: Given a wheel part is generated, When createRandomDNA scales motor speed, Then wheel motorSpeed reflects the standard wheel multiplier
+    it('createRandomDNA scales standard wheel motor speed with the wheel multiplier', () => {
+        const originalRandom = Math.random;
+        const sequence = [
+            0.1, 0.1, 0.1, 0.1, // root part values
+            0.1, // parent id
+            0.1, // choose wheel
+            0.75, // wheel base motorSpeed
+            0.1, 0.1, 0.1, 0.1 // wheel radius, density, friction, torque
+        ];
+        let index = 0;
+        Math.random = () => {
+            if (index < sequence.length) {
+                return sequence[index++];
+            }
+            return 0.1;
+        };
+
+        try {
+            const dna = createRandomDNA(2, new Set(['block', 'wheel']));
+            const wheel = dna.parts.find(part => part.kind === 'wheel');
+            expect(wheel.motorSpeed).toBeCloseTo(13);
+        } finally {
+            Math.random = originalRandom;
+        }
+    });
 });
