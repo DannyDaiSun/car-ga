@@ -91,6 +91,7 @@ export const PART_DEFINITIONS = {
 };
 
 export const ECONOMY = {
+    STARTING_MONEY: 200,
     MONEY_PER_MILESTONE: 30, // Money gained per milestone
     MILESTONE_DISTANCE: 30,   // Meters (more frequent, more rewarding)
 };

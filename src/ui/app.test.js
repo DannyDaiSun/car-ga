@@ -2,6 +2,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { App } from './app.js';
 import { render } from '../render/renderWorld.js';
+import { PART_DEFINITIONS } from '../gameConfig.js';
 
 // Mock dependencies that might cause issues in Node environment
 // renderWorld uses CanvasRenderingContext2D methods.
@@ -148,5 +149,18 @@ describe('App UI Behavior', () => {
         global.requestAnimationFrame = originalRaf;
 
         expect(app.stepSimulation).toHaveBeenCalledTimes(5);
+    });
+
+    it('starts with enough money to buy at least two parts', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const prices = Object.values(PART_DEFINITIONS)
+            .map(part => part.price)
+            .filter(price => price > 0)
+            .sort((a, b) => a - b);
+        const minimumTwoPartTotal = prices[0] + prices[1];
+
+        expect(app.money).toBeGreaterThanOrEqual(minimumTwoPartTotal);
     });
 });

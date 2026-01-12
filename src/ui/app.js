@@ -23,7 +23,7 @@ export class App {
         this.maxParts = options.maxParts ?? 8;
 
         // Economy & State
-        this.money = 0;
+        this.money = ECONOMY.STARTING_MONEY;
         this.unlockedParts = new Set(['block', 'wheel']);
         this.lastMilestone = 0; // For economy rewards
         this.historicalMaxX = 0;
