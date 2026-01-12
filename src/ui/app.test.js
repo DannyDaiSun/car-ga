@@ -84,4 +84,69 @@ describe('App UI Behavior', () => {
             expect.anything()
         );
     });
+
+    it('does not schedule another frame after pausing mid-loop', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const rafSpy = vi.fn();
+        const originalRaf = global.requestAnimationFrame;
+
+        app.running = true;
+        app.isGenerationFinished = () => false;
+        app.stepSimulation = vi.fn();
+        app.draw = () => {
+            app.running = false;
+        };
+
+        global.requestAnimationFrame = rafSpy;
+
+        app.loop();
+
+        global.requestAnimationFrame = originalRaf;
+
+        expect(rafSpy).not.toHaveBeenCalled();
+    });
+
+    it('reports best fitness across all cars', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const statsListener = vi.fn();
+
+        app.cars = [
+            { maxX: 120, finished: true, chassis: { getPosition: () => ({ x: 0, y: 0 }) }, carId: 0 },
+            { maxX: 60, finished: false, chassis: { getPosition: () => ({ x: 0, y: 0 }) }, carId: 1 }
+        ];
+
+        app.setStatsCallback(statsListener);
+        app.draw();
+
+        expect(statsListener).toHaveBeenCalledWith({
+            generation: 1,
+            bestFitness: 120
+        });
+    });
+
+    it('caps simulation steps per frame at five', () => {
+        const mockCtx = { fillStyle: '', font: '', fillText: vi.fn() };
+        const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
+        const app = new App(mockCanvas);
+        const rafSpy = vi.fn();
+        const originalRaf = global.requestAnimationFrame;
+
+        app.running = true;
+        app.speed = 10;
+        app.isGenerationFinished = () => false;
+        app.stepSimulation = vi.fn();
+        app.draw = vi.fn();
+
+        global.requestAnimationFrame = rafSpy;
+
+        app.loop();
+
+        global.requestAnimationFrame = originalRaf;
+
+        expect(app.stepSimulation).toHaveBeenCalledTimes(5);
+    });
 });

@@ -34,3 +34,8 @@ Run all tests: `npx vitest run`
 | B-28 | createRandomDNA can generate tiny_wheel when unlocked | ✅ | src/ga/dna.test.js |
 | B-29 | README lists GitHub Actions workflow badges | ✅ | src/readme.test.js |
 | B-30 | Unit tests exclude e2e specs via Vitest config | ✅ | src/vitest-config.test.js |
+| B-31 | Pause stops scheduling new frames during the loop | ✅ | src/ui/app.test.js |
+| B-32 | Best fitness stat reflects top distance across all cars | ✅ | src/ui/app.test.js |
+| B-33 | Sidebar text uses high-contrast pixel dark color | ✅ | src/style.test.js |
+| B-34 | Mobile sidebar stays in layout without overlapping the canvas | ✅ | src/style.test.js |
+| B-35 | High speed simulation caps steps per frame | ✅ | src/ui/app.test.js |

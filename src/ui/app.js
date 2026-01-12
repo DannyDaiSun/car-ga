@@ -120,24 +120,25 @@ export class App {
         // We step physics 'speed' times per frame?
         // Or just modify timestep? (Bad for stability).
         // Best: Multiple constant steps.
-        const steps = Math.ceil(this.speed);
+        const steps = Math.min(5, Math.ceil(this.speed));
+        const dt = (1 / 60) * (this.speed / steps);
 
         for (let s = 0; s < steps; s++) {
             if (this.isGenerationFinished()) {
                 this.evolve();
                 break;
             }
-            this.stepSimulation();
+            this.stepSimulation(dt);
         }
 
         // Render
         this.draw();
 
+        if (!this.running) return;
         this.requestRef = requestAnimationFrame(() => this.loop());
     }
 
-    stepSimulation() {
-        const dt = 1 / 60;
+    stepSimulation(dt = 1 / 60) {
         this.time += dt;
 
         // Step Physics
@@ -277,6 +278,10 @@ export class App {
             leader = this.cars.reduce((a, b) => a.maxX > b.maxX ? a : b);
         }
 
+        const bestFitness = this.cars.length > 0
+            ? Math.max(...this.cars.map(c => c.maxX))
+            : 0;
+
         const targetCamX = leader.chassis ? leader.chassis.getPosition().x : 0;
         // Loose tracking: Lerp towards target
         const lerpFactor = 0.1;
@@ -303,14 +308,14 @@ export class App {
         this.ctx.font = '16px monospace';
         this.ctx.fillText(`Gen: ${this.generation}`, 10, 20);
         this.ctx.fillText(`Time: ${this.time.toFixed(1)}s`, 10, 40);
-        this.ctx.fillText(`Best: ${leader.maxX.toFixed(2)}m`, 10, 60);
+        this.ctx.fillText(`Best: ${bestFitness.toFixed(2)}m`, 10, 60);
         this.ctx.fillText(`Active: ${this.cars.filter(c => !c.finished).length}/${this.popSize}`, 10, 80);
         this.ctx.fillText(`Money: $${this.money}`, 10, 100);
 
         if (this.statsCallback) {
             this.statsCallback({
                 generation: this.generation,
-                bestFitness: leader.maxX
+                bestFitness: bestFitness
             });
         }
     }
@@ -318,14 +323,16 @@ export class App {
     // Controls
     togglePause() {
         if (this.running) {
+            this.running = false;
             // Pause: stop the loop by canceling the next frame
             if (this.requestRef) {
                 cancelAnimationFrame(this.requestRef);
                 this.requestRef = null;
             }
+            return;
         }
-        this.running = !this.running;
-        if (this.running) this.loop();
+        this.running = true;
+        this.loop();
     }
 
     setSpeed(s) {
