@@ -5,6 +5,22 @@ import { getTrackHeight } from '../physics/track.js';
 
 const SCALE = 20; // pixels per meter
 
+const visualAssets = {};
+const ASSET_LIST = [
+    'geo_body_sport', 'geo_body_truck', 'geo_wheel_mag',
+    'cyber_engine_reactor', 'cyber_engine_v8cyber', 'cyber_engine_turbine',
+    'cyber_booster_rocket'
+];
+
+function loadAssets() {
+    ASSET_LIST.forEach(name => {
+        const img = new Image();
+        img.src = `/art/${name}.png`;
+        visualAssets[name] = img;
+    });
+}
+loadAssets();
+
 export function render(ctx, world, cameraX, width, height, championId, miniMapData) {
     // Draw Sky - LCD Green
     ctx.fillStyle = '#c4f0c2';
@@ -12,116 +28,27 @@ export function render(ctx, world, cameraX, width, height, championId, miniMapDa
 
     ctx.save();
     // Camera Transform
-    // Centered horizontally on cameraX, vertically centered/offset?
-    // Ground is at y=0. Let's put y=0 at 3/4 height.
-    ctx.translate(width / 4, height * 0.75); // Moved camera slightly left (width/4) so we see more forward
-    ctx.scale(SCALE, -SCALE); // Invert Y for physics coords
+    ctx.translate(width / 4, height * 0.75);
+    ctx.scale(SCALE, -SCALE);
     ctx.translate(-cameraX, 0);
 
-    // Check line styles
-    ctx.lineWidth = 2 / SCALE; // constant pixel width
+    ctx.lineWidth = 2 / SCALE;
 
-    // Iterate bodies
-    // We only want to render:
-    // 1. Static Ground (always)
-    // 2. Champion Car Parts (only if ID matches champion)
-
-    // Iterating all bodies to filter is fast enough?
-    // planck world walker:
+    // Render Ground (Static Bodies) first
     for (let b = world.getBodyList(); b; b = b.getNext()) {
-        const type = b.getType(); // 'static', 'dynamic', 'kinematic'
-        const isStatic = (type === 'static');
-
-        // We need to identify if this body belongs to the champion.
-        // We can do this by checking UserData or checking checking if it's in the champion's parts list.
-        // We need 'championId' or reference.
-        // Let's assume Sim or App passes a way to identify.
-        // Quick hack: 'static' is ground. 'dynamic' is cars.
-        // If dynamic, we check if it is part of champion.
-
-        // But the 'world' object does not easily map Body -> CarID unless we stored it.
-        // We should store carId in userData of bodies during buildCar.
-
-        const userData = b.getUserData();
-        // Assume userData = { carId: ... } or null
-
-        let shouldRender = false;
-        if (isStatic) {
-            shouldRender = true;
-        } else {
-            // It's a car part.
-            // We only render if it matches championId (if provided).
-            // If championId is null/undefined, render all? SOP says 'only champion'.
-            if (userData && userData.carId === championId) {
-                shouldRender = true;
-            }
+        if (b.getType() === 'static') {
+            renderBody(ctx, b, true);
         }
+    }
 
-        if (shouldRender) {
-            const pos = b.getPosition();
-            const angle = b.getAngle();
-
-            ctx.save();
-            ctx.translate(pos.x, pos.y);
-            ctx.rotate(angle);
-
-            if (isStatic) {
-                // Ground Rendering - Dark Pixel
-                ctx.fillStyle = '#2f483a';
-                ctx.strokeStyle = '#2f483a';
-            } else {
-                // Dynamic/Car - Red/Orange Accent
-                ctx.fillStyle = '#d9455f';
-                ctx.strokeStyle = '#2f483a'; // Dark outline
+    // Render Cars (Dynamic Bodies)
+    // Only render champion's parts if championId is provided
+    for (let b = world.getBodyList(); b; b = b.getNext()) {
+        if (b.getType() !== 'static') {
+            const userData = b.getUserData();
+            if (userData && userData.carId === championId) {
+                renderBody(ctx, b, false);
             }
-
-            for (let f = b.getFixtureList(); f; f = f.getNext()) {
-                const shape = f.getShape();
-                const type = shape.getType();
-
-                ctx.beginPath();
-                if (type === 'circle') {
-                    const r = shape.getRadius();
-                    const center = shape.getCenter();
-                    ctx.arc(center.x, center.y, r, 0, 2 * PI);
-                    // Spoke to see rotation
-                    ctx.moveTo(center.x, center.y);
-                    ctx.lineTo(center.x + r, center.y);
-                } else if (type === 'polygon') {
-                    const vertices = shape.m_vertices;
-                    if (vertices && vertices.length) {
-                        ctx.moveTo(vertices[0].x, vertices[0].y);
-                        for (let i = 1; i < vertices.length; i++) {
-                            ctx.lineTo(vertices[i].x, vertices[i].y);
-                        }
-                        ctx.closePath();
-                    }
-                } else if (type === 'chain') {
-                    const vertices = shape.m_vertices;
-                    if (vertices && vertices.length) {
-                        ctx.moveTo(vertices[0].x, vertices[0].y);
-                        for (let i = 1; i < vertices.length; i++) {
-                            ctx.lineTo(vertices[i].x, vertices[i].y);
-                        }
-
-                        // For ground, we want to close the shape downwards to fill it
-                        if (isStatic) {
-                            // Extend down from last point to deep Y
-                            const last = vertices[vertices.length - 1];
-                            const first = vertices[0];
-                            const deepY = -100; // Deep enough below view
-
-                            ctx.lineTo(last.x, deepY);
-                            ctx.lineTo(first.x, deepY);
-                            ctx.lineTo(first.x, first.y);
-                        }
-                    }
-                }
-
-                ctx.fill();
-                ctx.stroke();
-            }
-            ctx.restore();
         }
     }
 
@@ -133,12 +60,171 @@ export function render(ctx, world, cameraX, width, height, championId, miniMapDa
     }
 }
 
+function renderBody(ctx, body, isStatic) {
+    const pos = body.getPosition();
+    const angle = body.getAngle();
+    const userData = body.getUserData();
+
+    ctx.save();
+    ctx.translate(pos.x, pos.y);
+    ctx.rotate(angle);
+
+    if (isStatic) {
+        // Ground Rendering - Dark Pixel
+        ctx.fillStyle = '#2f483a';
+        ctx.strokeStyle = '#2f483a';
+        renderShapes(ctx, body); // Keep shapes for ground
+    } else {
+        // Car Part Rendering - Reverted to polygon style
+        ctx.fillStyle = '#d9455f'; // Red/pink accent
+        ctx.strokeStyle = '#2f483a'; // Dark outline
+        renderShapes(ctx, body);
+    }
+    ctx.restore();
+}
+
+function renderSprite(ctx, body, userData) {
+    const { partKind, partId, carId } = userData;
+    let spriteName = null;
+
+    // Deterministic random choice based on carId + partId
+    // We use a simple hash to pick a variant
+    const seed = (carId || 0) + (partId || 0);
+
+    // Map kinds to assets (Simpler Geometric Style)
+    if (partKind === 'block') {
+        // Map both variants to geo_body_sport for now (until we have more geo bodies)
+        // Actually we have geo_body_truck too.
+        const variants = ['geo_body_sport', 'geo_body_sport'];
+        spriteName = variants[seed % variants.length];
+    } else if (partKind === 'long_body') {
+        spriteName = 'geo_body_truck';
+    } else if (partKind === 'wheel') {
+        // Only have Mag Wheel for now
+        spriteName = 'geo_wheel_mag';
+    } else if (partKind === 'big_wheel') {
+        // Map to Mag Wheel (maybe scaled larger in render/physics automatically by dimensions)
+        spriteName = 'geo_wheel_mag';
+    } else if (partKind === 'jetpack') {
+        spriteName = 'cyber_booster_rocket'; // Kept old one
+    }
+
+    const img = visualAssets[spriteName];
+
+    // Get dimensions from the first fixture (assuming single shape per body for simplicity)
+    const f = body.getFixtureList();
+    if (f && img && img.complete) {
+        const shape = f.getShape();
+        const type = shape.getType();
+
+        let w, h;
+        if (type === 'circle') {
+            const r = shape.getRadius();
+            w = r * 2.2; // Slightly larger than physics circle to look good
+            h = r * 2.2;
+        } else {
+            // Polygon/Box. extracting width/height from vertices is hard generic.
+            // But we know we built them as Boxes in buildCar.
+            // Box vertices are locally axis aligned usually?
+            // Let's assume standard box.
+            // Or access userData if we stored w/h? We didn't.
+            // Let's approximate from AABB of shape?
+            // shape.computeAABB(aabb, transform, 0)? No, simpler:
+            // vertices[0] is usually top-right or similar.
+            // buildCar: Box(w/2, h/2).
+            // Let's iterate vertices to find bounding box.
+            if (type === 'polygon') {
+                // Simple AABB of vertices
+                const vertices = shape.m_vertices;
+                let minX = 0, maxX = 0, minY = 0, maxY = 0;
+                if (vertices && vertices.length) {
+                    minX = vertices[0].x; maxX = vertices[0].x;
+                    minY = vertices[0].y; maxY = vertices[0].y;
+                    for (let i = 1; i < vertices.length; i++) {
+                        minX = Math.min(minX, vertices[i].x);
+                        maxX = Math.max(maxX, vertices[i].x);
+                        minY = Math.min(minY, vertices[i].y);
+                        maxY = Math.max(maxY, vertices[i].y);
+                    }
+                }
+                w = (maxX - minX);
+                h = (maxY - minY);
+            }
+        }
+
+        if (w && h) {
+            // Flip Y for image rendering because we are in physics Y-up 
+            // BUT canvas `scale(SCALE, -SCALE)` flips Y.
+            // So +Y is DOWN in image space if we draw normally?
+            // Wait, we scaled context (SCALE, -SCALE).
+            // So +Y in local coord goes UP on screen.
+            // drawImage(img, 0, 0) draws strictly.
+            // Images are usually "up is up".
+            // If we draw normally, it will be upside down because of -SCALE Y.
+            // So we need to flip Y again for the sprite.
+            ctx.save();
+            ctx.scale(1, -1);
+            // Draw centered
+            // Logic: physics body center is (0,0).
+            // Image center should be at (0,0).
+            ctx.drawImage(img, -w / 2, -h / 2, w, h);
+            ctx.restore();
+            return;
+        }
+    }
+
+    // Fallback if no sprite matched or not loaded
+    ctx.fillStyle = '#d9455f';
+    ctx.strokeStyle = '#2f483a';
+    renderShapes(ctx, body);
+}
+
+function renderShapes(ctx, body) {
+    for (let f = body.getFixtureList(); f; f = f.getNext()) {
+        const shape = f.getShape();
+        const type = shape.getType();
+
+        ctx.beginPath();
+        if (type === 'circle') {
+            const r = shape.getRadius();
+            const center = shape.getCenter();
+            ctx.arc(center.x, center.y, r, 0, 2 * PI);
+            ctx.moveTo(center.x, center.y);
+            ctx.lineTo(center.x + r, center.y);
+        } else if (type === 'polygon' || type === 'chain') {
+            const vertices = shape.m_vertices;
+            if (vertices && vertices.length) {
+                ctx.moveTo(vertices[0].x, vertices[0].y);
+                for (let i = 1; i < vertices.length; i++) {
+                    ctx.lineTo(vertices[i].x, vertices[i].y);
+                }
+
+                // Close shape
+                if (type === 'chain' && body.getType() === 'static') {
+                    // Ground fill logic
+                    const last = vertices[vertices.length - 1];
+                    const first = vertices[0];
+                    const deepY = -100;
+
+                    ctx.lineTo(last.x, deepY);
+                    ctx.lineTo(first.x, deepY);
+                    ctx.lineTo(first.x, first.y);
+                } else {
+                    ctx.closePath();
+                }
+            }
+        }
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+
 /**
  * Renders a mini-map bar at the bottom of the screen.
  * Shows terrain shape, all cars as dots at correct heights, and a flag at the historical max distance.
  */
 function renderMiniMap(ctx, miniMapData, width, height) {
-    const { cars, historicalMaxX } = miniMapData;
+    const { cars, historicalMaxX, nextMilestone } = miniMapData;
 
     // Mini-map dimensions and position (bottom of screen, styled like LCD display)
     const mapHeight = 30; // Slightly taller to show terrain variation
@@ -214,6 +300,34 @@ function renderMiniMap(ctx, miniMapData, width, height) {
         ctx.strokeStyle = '#2f483a';
         ctx.lineWidth = 1;
         ctx.stroke();
+    }
+
+    // Draw Next Milestone Marker
+    if (nextMilestone) {
+        // Only draw if within visible range (or if scale allows it to be seen comfortably)
+        // We'll draw it wherever it falls on the map
+        const milestoneX = mapX + (nextMilestone * scaleX);
+
+        // Don't draw if it's way off screen
+        if (milestoneX < mapX + mapWidth + 20) {
+            const mTerrainY = getTrackHeight(nextMilestone);
+            const mScreenY = worldYToMapY(mTerrainY);
+
+            // Vertical Line
+            ctx.beginPath();
+            ctx.moveTo(milestoneX, mapY);
+            ctx.lineTo(milestoneX, mapY + mapHeight);
+            ctx.strokeStyle = '#ffd700'; // Gold
+            ctx.setLineDash([2, 2]);
+            ctx.lineWidth = 1;
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // "$" Label
+            ctx.fillStyle = '#ffd700';
+            ctx.font = '8px "Press Start 2P", monospace';
+            ctx.fillText('$', milestoneX - 3, mapY + 8);
+        }
     }
 
     // Draw car dots at correct terrain heights

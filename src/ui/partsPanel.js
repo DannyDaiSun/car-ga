@@ -13,11 +13,20 @@ export function initPartsPanel(app) {
     if (!panel || !toggle || !grid) return;
 
     // Toggle collapsed state on click
+    let isThrottled = false;
     toggle.addEventListener('click', () => {
+        if (isThrottled) return;
+
         panel.classList.toggle('collapsed');
         toggle.textContent = panel.classList.contains('collapsed')
             ? '◀ Parts'
             : '▶ Parts';
+
+        // Block further clicks for the duration of the transition (300ms)
+        isThrottled = true;
+        setTimeout(() => {
+            isThrottled = false;
+        }, 300);
     });
 
     // Populate grid with part types

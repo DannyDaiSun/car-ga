@@ -292,7 +292,8 @@ export class App {
                 finished: c.finished
             })),
             historicalMaxX: this.historicalMaxX,
-            trackedCarId: leader.carId
+            trackedCarId: leader.carId,
+            nextMilestone: this.lastMilestone + ECONOMY.MILESTONE_DISTANCE
         };
 
         render(this.ctx, this.world, cameraX, this.width, this.height, leader.carId, miniMapData);
@@ -316,6 +317,13 @@ export class App {
 
     // Controls
     togglePause() {
+        if (this.running) {
+            // Pause: stop the loop by canceling the next frame
+            if (this.requestRef) {
+                cancelAnimationFrame(this.requestRef);
+                this.requestRef = null;
+            }
+        }
         this.running = !this.running;
         if (this.running) this.loop();
     }

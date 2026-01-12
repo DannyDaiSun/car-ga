@@ -1,6 +1,10 @@
 
 import * as planck from 'planck-js';
 
+import assetDimensions from '../render/assetDimensions.json';
+
+const SCALE = 20; // Pixels per meter
+
 export function buildCar(world, dna, position, carId) {
     const parts = new Map(); // id -> body
     const joints = [];
@@ -16,27 +20,6 @@ export function buildCar(world, dna, position, carId) {
     dna.parts.forEach(partDef => {
         let body;
         const initPos = position.clone();
-
-        // Parts are initialized somewhat relative to root, 
-        // but actually the joint anchors define the shape.
-        // In the DNA, we don't store absolute positions.
-        // We typically build the tree.
-        // For physics body creation, we need an initial position.
-        // We can build them all at 'position' and let the joints pull them,
-        // OR we can calculate the layout.
-        // DNA joints have 'anchor' relative to parent.
-        // But part definition is just size/kind.
-
-        // Simplified approach: Create all at 'position' (piled up)
-        // and let Box2D resolve it? Might explode.
-        // Better: Traverse the tree to calculate initial world positions.
-        // But DNA doesn't enforce order 0 -> children.
-        // We should sort or traverse.
-        // Let's assume we can build them at position and spread slightly or
-        // just let them snap (violent but works for GA).
-        // Actually, for stability, let's try to place them based on anchors.
-        // But DNA is 'anchor relative to parent'.
-        // So we do need to traverse from ID 0.
     });
 
     // 1. Organize tree
@@ -60,14 +43,53 @@ export function buildCar(world, dna, position, carId) {
             angularDamping: 0.05
         });
 
-        // Set carId
-        body.setUserData({ carId: carId });
+        // Set carId and visual type
+        // Use partDef.kind to determine visual asset
+        // We can add simple logic to pick variants later if we want more randomness
+        body.setUserData({
+            carId: carId,
+            partKind: partDef.kind, // 'block', 'wheel', 'long_body', 'jetpack', 'big_wheel'
+            partId: partDef.id
+        });
+
+        // Determine correct dimension from assets
+        let w = partDef.w;
+        let h = partDef.h;
+        let r = partDef.radius;
+
+        // Visual Asset Logic (Matches renderWorld.js)
+        const seed = (carId || 0) + (partDef.id || 0);
+        let spriteName = null;
+        if (partDef.kind === 'block') {
+            const variants = ['geo_body_sport', 'geo_body_sport'];
+            spriteName = variants[seed % variants.length];
+        } else if (partDef.kind === 'long_body') {
+            spriteName = 'geo_body_truck';
+        } else if (partDef.kind === 'wheel') {
+            spriteName = 'geo_wheel_mag';
+        } else if (partDef.kind === 'big_wheel') {
+            spriteName = 'geo_wheel_mag';
+        } else if (partDef.kind === 'jetpack') {
+            spriteName = 'cyber_booster_rocket';
+        }
+
+        // Apply visual dimensions if asset exists
+        if (spriteName && assetDimensions[spriteName]) {
+            const dims = assetDimensions[spriteName];
+            // Convert pixels to meters
+            // Scale down by 0.25 to keep parts reasonably sized
+            const SPRITE_SCALE = 0.25;
+            w = (dims.w / SCALE) * SPRITE_SCALE;
+            h = (dims.h / SCALE) * SPRITE_SCALE;
+            // For wheels, approximate radius
+            r = Math.min(w, h) / 2;
+        }
 
         let shape;
         if (partDef.kind === 'block' || partDef.kind === 'long_body' || partDef.kind === 'jetpack') {
-            shape = planck.Box(partDef.w / 2, partDef.h / 2); // Box takes half-width/height
+            shape = planck.Box(w / 2, h / 2);
         } else if (partDef.kind === 'wheel' || partDef.kind === 'big_wheel') {
-            shape = planck.Circle(partDef.radius);
+            shape = planck.Circle(r);
         }
 
         body.createFixture({

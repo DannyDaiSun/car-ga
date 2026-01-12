@@ -1,0 +1,30 @@
+{
+  "geo_body_sport": {
+    "w": 200,
+    "h": 55
+  },
+  "geo_body_truck": {
+    "w": 200,
+    "h": 120
+  },
+  "geo_wheel_mag": {
+    "w": 200,
+    "h": 184
+  },
+  "cyber_booster_rocket": {
+    "w": 200,
+    "h": 92
+  },
+  "cyber_engine_reactor": {
+    "w": 200,
+    "h": 137
+  },
+  "cyber_engine_v8cyber": {
+    "w": 200,
+    "h": 147
+  },
+  "cyber_engine_turbine": {
+    "w": 200,
+    "h": 169
+  }
+}

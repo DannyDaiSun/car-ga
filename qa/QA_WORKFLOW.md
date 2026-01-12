@@ -33,3 +33,15 @@
 ## 7) Regression Suite
 - Convert previously found critical bugs into a small regression checklist.
 - Run the regression checklist before every release/tag.
+
+## 8) Automated Verification Patterns
+- Use `browser_subagent` for end-to-end flows.
+- **Green State Baseline**:
+  - **URL**: `http://localhost:5173/`
+  - **Console**: No Errors.
+  - **Canvas**: `#world` visibility.
+  - **Gameplay**: `Population > 0`, `Generation` increments > 0.
+- **Recommended Tool Usage**:
+  - `browser_get_dom`: Check element existence (ids, accessibility labels).
+  - `execute_browser_javascript`: Verify internal state (e.g., `world.cars.length`, `speedSlider.value`) and canvas pixel data.
+  - `capture_browser_screenshot`: Visual proof for artifacts and regression comparison.

@@ -243,7 +243,8 @@ label {
   font-family: 'Press Start 2P', cursive;
   font-size: 8px;
   color: var(--gb-accent);
-  opacity: 0.8;
+  /* opacity: 0.8; Removed for QA-004 contrast */
+  font-weight: bold;
 }
 
 input[type=range] {
@@ -315,10 +316,21 @@ input[type=range] {
   text-transform: uppercase;
   letter-spacing: 1px;
   transition: background 0.2s;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .parts-toggle:hover {
   background: var(--btn-a);
+}
+
+.parts-toggle:active {
+  transform: translateY(-50%) !important;
+  /* Override global button movement */
+  background: #c07a3e;
+  /* Darker shade of btn-a */
+  box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.2);
+  /* Keep shadow consistent */
 }
 
 .parts-content {
@@ -499,4 +511,52 @@ input[type=range] {
 
 .part-price {
   font-weight: bold;
+}
+
+/* Mobile Responsiveness (QA-005) */
+@media (max-width: 768px) {
+  #app {
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    border-radius: 0;
+    max-width: none;
+    max-height: none;
+    padding: 10px;
+  }
+
+  #sidebar {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+    height: auto;
+    max-height: 25vh;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-bottom: 5px;
+    border-bottom: 2px solid var(--gb-accent);
+  }
+
+  #game-container {
+    border-radius: 10px;
+    flex: 1;
+  }
+
+  .controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding-top: 0;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #stats {
+    display: none;
+    /* Hide stats on very small screens or move them */
+  }
+
+  /* Show minimal stats if needed, or rely on game canvas text? 
+     Game canvas has stats drawn on it! So hiding #stats sidebar is fine for mobile space.
+  */
 }

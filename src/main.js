@@ -35,6 +35,7 @@ app.setStatsCallback((stats) => {
 });
 
 app.start();
+document.getElementById('btn-start').textContent = 'PAUSE'; // Reflect running state
 
 // Init Parts Panel
 initPartsPanel(app);
@@ -42,6 +43,9 @@ initPartsPanel(app);
 // Controls
 document.getElementById('btn-start').addEventListener('click', () => {
   app.togglePause();
+  const btn = document.getElementById('btn-start');
+  btn.textContent = app.running ? "PAUSE" : "RESUME";
+  console.log('Pause Toggled. Running:', app.running);
 });
 
 document.getElementById('btn-reset').addEventListener('click', () => {
