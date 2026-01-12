@@ -34,3 +34,4 @@ Run all tests: `npx vitest run`
 | B-28 | createRandomDNA can generate tiny_wheel when unlocked | ✅ | src/ga/dna.test.js |
 | B-29 | README lists GitHub Actions workflow badges | ✅ | src/readme.test.js |
 | B-30 | Unit tests exclude e2e specs via Vitest config | ✅ | src/vitest-config.test.js |
+| B-31 | GitHub Pages deploys site on push to main | ✅ | src/pages-workflow.test.js |
