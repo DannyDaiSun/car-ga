@@ -18,9 +18,9 @@ export class App {
         this.height = canvas.height;
 
         // GA Settings (configurable)
-        this.popSize = options.popSize ?? 100;
-        this.mutRate = options.mutRate ?? 0.02;
-        this.maxParts = options.maxParts ?? 8;
+        this.popSize = options.popSize ?? 200;
+        this.mutRate = options.mutRate ?? 0.05;
+        this.maxParts = options.maxParts ?? 12;
 
         // Economy & State
         this.money = 0;
