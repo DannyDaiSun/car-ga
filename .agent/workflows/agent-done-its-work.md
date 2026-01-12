@@ -55,7 +55,7 @@ git add -A
 git commit -m "B-<id>: <behavior summary>"
 ```
 
-2.3 Update `agent/BEHAVIOR_BACKLOG.md` to mark behavior as ✅.
+2.3 Update the behavior file in `agent/behaviors/` to mark Status as DONE.
 
 **Done!** Work is complete.
 
@@ -69,7 +69,7 @@ If any tests failed:
 
 3.2 Switch to the `/fix-bugs` workflow:
 - Convert each failure into a missing behavior (Given/When/Then)
-- Add to `agent/BEHAVIOR_BACKLOG.md` as TODO under Bugfix
+- Add as a TODO in a new file under `agent/behaviors/`
 - Create targeted test, implement minimal fix
 
 3.3 After fixing, **restart this workflow from Step 1**.

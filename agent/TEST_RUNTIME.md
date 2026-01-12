@@ -1,4 +1,6 @@
-# Slow Test Log
+# Slow Test Log (Legacy)
+
+New entries must go in `agent/test-runtime/` as one-file-per-test to avoid merge conflicts.
 
 - src/ga/integration.test.js > successfully evolves to next generation when cars finish: 548ms (vitest report on 2025-09-21). Remediation pending.
 - src/issue-workflow.test.js > triggers on issues and applies the codex label: 4ms (vitest report on 2025-09-21). Remediation pending.

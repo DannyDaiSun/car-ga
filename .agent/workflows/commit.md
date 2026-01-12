@@ -16,7 +16,7 @@ description: How to commit code changes after completing work
 Commit after **each behavior** is completed. A behavior is complete when:
 1. The test file has been created/updated
 2. All unit tests pass (`npx vitest run`)
-3. The behavior backlog has been updated
+3. The behavior file in `agent/behaviors/` has been updated to DONE
 
 ## Commit Process
 
@@ -43,8 +43,8 @@ Example:
 git commit -m "B-7: pickParentRoulette returns cloned DNA with zero fitness"
 ```
 
-### Step 4: Update Backlog
-Mark the behavior as ✅ in `agent/BEHAVIOR_BACKLOG.md`.
+### Step 4: Update Behavior Status
+Mark the behavior as DONE in its `agent/behaviors/B-<id>.md` file.
 
 ## Commit Message Format
 
@@ -52,7 +52,7 @@ Mark the behavior as ✅ in `agent/BEHAVIOR_BACKLOG.md`.
 B-<id>: <one-line behavior description>
 ```
 
-- `B-<id>` matches the ID in BEHAVIOR_BACKLOG.md
+- `B-<id>` matches the unique ID in `agent/behaviors/B-<id>.md`
 - Description should be the behavior summary (Given/When/Then simplified)
 - Maximum 72 characters for the subject line
 
@@ -68,4 +68,4 @@ B-<id>: <one-line behavior description>
 ❌ Writing multiple test files then committing once  
 ❌ Committing without running tests first  
 ❌ Grouping multiple behaviors in one commit  
-❌ Forgetting to update BEHAVIOR_BACKLOG.md  
+❌ Forgetting to update the behavior file in `agent/behaviors/`  

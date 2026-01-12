@@ -60,7 +60,8 @@ All artifacts live under `./agent/`.
 | `agent/BEHAVIOR_BACKLOG.md` | Legacy index and rules for behavior logging (conflict-minimized updates live in `agent/behaviors/`) |
 | `agent/behaviors/` | Single source of truth for behaviors, status, and per-behavior test mapping (one file per behavior) |
 | `agent/LESSONS.md` | Append-only "Verified Project Lessons." Written only when verified by evidence |
-| `agent/TEST_RUNTIME.md` | Tracks slow tests (>2ms) and remediation notes |
+| `agent/test-runtime/` | Per-test runtime logs for slow tests (>2ms), one file per test to avoid merge conflicts |
+| `agent/TEST_RUNTIME.md` | Legacy index for slow tests (do not append new rows) |
 
 ---
 
@@ -79,7 +80,8 @@ All artifacts live under `./agent/`.
 - Any unit test whose runtime is > 2ms is a "slow test"
 - Measurement source: test runner report
 - If runner report does not provide per-test timing: agent must introduce timing instrumentation
-- Slow tests must be logged in `agent/TEST_RUNTIME.md`
+- Slow tests must be logged as individual files in `agent/test-runtime/` (one file per test) to avoid merge conflicts
+- `agent/TEST_RUNTIME.md` is legacy-only; do not append new rows
 - Fixing slow tests can be deferred until the end of the work item, but must be performed before declaring complete
 
 ---
@@ -88,6 +90,7 @@ All artifacts live under `./agent/`.
 
 - Agent MUST commit after each behavior is completed and all unit tests pass
 - Commit message format: `B-<id>: <behavior summary>`
+- Behavior IDs must be globally unique to avoid conflicts; use a timestamped suffix (example: `B-20250110-153045-reset-camera`)
 - Each commit must include:
   - Code changes
   - The new test (unit or snapshot)
