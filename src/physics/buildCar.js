@@ -69,6 +69,10 @@ export function buildCar(world, dna, position, carId) {
             spriteName = 'geo_wheel_mag';
         } else if (partDef.kind === 'big_wheel') {
             spriteName = 'geo_wheel_mag';
+        } else if (partDef.kind === 'small_wheel') {
+            spriteName = 'geo_wheel_mag';
+        } else if (partDef.kind === 'tiny_wheel') {
+            spriteName = 'geo_wheel_mag';
         } else if (partDef.kind === 'jetpack') {
             spriteName = 'cyber_booster_rocket';
         }
@@ -88,7 +92,7 @@ export function buildCar(world, dna, position, carId) {
         let shape;
         if (partDef.kind === 'block' || partDef.kind === 'long_body' || partDef.kind === 'jetpack') {
             shape = planck.Box(w / 2, h / 2);
-        } else if (partDef.kind === 'wheel' || partDef.kind === 'big_wheel') {
+        } else if (partDef.kind === 'wheel' || partDef.kind === 'big_wheel' || partDef.kind === 'small_wheel' || partDef.kind === 'tiny_wheel') {
             shape = planck.Circle(r);
         }
 

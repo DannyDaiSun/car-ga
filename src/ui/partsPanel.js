@@ -97,43 +97,56 @@ function renderPartsList(container, app, refreshCallback) {
     // Add Explanatory Text
     const info = document.createElement('div');
     info.className = 'panel-info';
-    info.textContent = "Reach distance milestones to earn money (every 50m). Buy parts to evolve better cars.";
+    info.textContent = "Reach distance milestones to earn money (every 30m). Buy parts to evolve better cars.";
     container.appendChild(info);
 
     Object.values(PART_DEFINITIONS).forEach(part => {
         const slot = document.createElement('div');
         slot.className = 'part-slot';
+
+        // Add tier class for styling
+        if (part.tier) {
+            slot.classList.add(`tier-${part.tier}`);
+        }
+
         if (!app.unlockedParts.has(part.id)) {
             slot.classList.add('locked');
         }
-        slot.title = part.desc;
 
+        // Icon with emoji
         const icon = document.createElement('div');
-        icon.className = `part-icon ${part.kind}`;
-        // Unique styling for new parts?
-        if (part.id === 'big_wheel') icon.style.borderRadius = '50%';
-        if (part.id === 'jetpack') icon.style.backgroundColor = 'orange';
+        icon.className = 'part-icon';
+        icon.textContent = part.icon || '❓';
 
-        const info = document.createElement('div');
-        info.className = 'part-info';
+        const infoDiv = document.createElement('div');
+        infoDiv.className = 'part-info';
 
+        // Part name
         const label = document.createElement('span');
         label.classList.add('part-name');
         label.textContent = part.label;
+        infoDiv.appendChild(label);
 
-        info.appendChild(label);
+        // Part description (inline, always visible)
+        const desc = document.createElement('span');
+        desc.className = 'part-desc';
+        desc.textContent = part.desc;
+        infoDiv.appendChild(desc);
 
         // Buy/Status section
+        const statusRow = document.createElement('div');
+        statusRow.className = 'part-status-row';
+
         if (app.unlockedParts.has(part.id)) {
             const status = document.createElement('span');
             status.className = 'status-unlocked';
             status.textContent = '✔ Owned';
-            info.appendChild(status);
+            statusRow.appendChild(status);
         } else {
             const price = document.createElement('span');
             price.className = 'part-price';
             price.textContent = `$${part.price}`;
-            info.appendChild(price);
+            statusRow.appendChild(price);
 
             const buyBtn = document.createElement('button');
             buyBtn.className = 'buy-btn';
@@ -148,11 +161,13 @@ function renderPartsList(container, app, refreshCallback) {
                 buyBtn.disabled = true;
                 buyBtn.title = 'Not enough money';
             }
-            info.appendChild(buyBtn);
+            statusRow.appendChild(buyBtn);
         }
 
+        infoDiv.appendChild(statusRow);
+
         slot.appendChild(icon);
-        slot.appendChild(info);
+        slot.appendChild(infoDiv);
         container.appendChild(slot);
     });
 }

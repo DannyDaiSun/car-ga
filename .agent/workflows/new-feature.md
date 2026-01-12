@@ -2,6 +2,17 @@
 description: Add New Functionality - use this when adding any new behavior to the codebase
 ---
 
+# New Feature Workflow
+
+## Test Framework
+
+**This project uses Vitest** as the test runner.
+- Run all tests: `npx vitest run`
+- Run a single test file: `npx vitest run <path/to/file.test.js>`
+- Watch mode: `npx vitest`
+
+---
+
 Step 0 — Baseline
 
 0.1 Ensure clean working state.

@@ -37,8 +37,9 @@ export function mutatePerField(dna, rate = 0.02) {
 
     // Parts
     dna.parts.forEach(p => {
-        if (p.kind === 'wheel') {
-            if (Math.random() < rate) p.radius = clamp(p.radius + randDelta(0.05), 0.2, 1.5);
+        const isWheel = ['wheel', 'big_wheel', 'small_wheel', 'tiny_wheel'].includes(p.kind);
+        if (isWheel) {
+            if (Math.random() < rate) p.radius = clamp(p.radius + randDelta(0.05), 0.08, 1.5);
             if (Math.random() < rate) p.density = clamp(p.density + randDelta(0.5), 0.1, 10);
             if (Math.random() < rate) p.friction = clamp(p.friction + randDelta(0.2), 0, 1);
             if (Math.random() < rate) p.motorSpeed = clamp(p.motorSpeed + randDelta(3), -50, 50);

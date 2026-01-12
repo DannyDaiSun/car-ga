@@ -37,6 +37,8 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
       // Try to pick a special part
       const options = [];
       if (unlockedParts.has('big_wheel') && wheelCount < 4) options.push('big_wheel');
+      if (unlockedParts.has('small_wheel') && wheelCount < 4) options.push('small_wheel');
+      if (unlockedParts.has('tiny_wheel') && wheelCount < 4) options.push('tiny_wheel');
       if (unlockedParts.has('long_body')) options.push('long_body');
       if (unlockedParts.has('jetpack')) options.push('jetpack');
 
@@ -84,6 +86,35 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
         density: randomRange(0.5, 3),
         friction: randomRange(0.1, 0.9)
       });
+    } else if (kind === 'small_wheel') {
+      const def = PART_DEFINITIONS.small_wheel;
+      const baseMotorSpeed = randomRange(-20, 20);
+      const baseBreakForce = randomRange(500, 2000);
+      parts.push({
+        id,
+        kind: 'small_wheel',
+        radius: randomRange(def.minRadius, def.maxRadius),
+        density: randomRange(1, 4),
+        friction: randomRange(0.2, 1.0),
+        motorSpeed: baseMotorSpeed * def.motorMultiplier,
+        maxMotorTorque: randomRange(10, 100),
+        breakMultiplier: def.breakMultiplier
+      });
+      wheelCount++;
+    } else if (kind === 'tiny_wheel') {
+      const def = PART_DEFINITIONS.tiny_wheel;
+      const baseMotorSpeed = randomRange(-20, 20);
+      parts.push({
+        id,
+        kind: 'tiny_wheel',
+        radius: randomRange(def.minRadius, def.maxRadius),
+        density: randomRange(1, 4),
+        friction: randomRange(0.2, 1.0),
+        motorSpeed: baseMotorSpeed * def.motorMultiplier,
+        maxMotorTorque: randomRange(10, 100),
+        breakMultiplier: def.breakMultiplier
+      });
+      wheelCount++;
     } else if (kind === 'jetpack') {
       parts.push({
         id,

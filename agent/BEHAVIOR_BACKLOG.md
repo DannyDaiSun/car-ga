@@ -28,3 +28,7 @@ Run all tests: `npx vitest run`
 | B-22 | Successfully evolves to next generation when cars finish | ✅ | src/ga/integration.test.js |
 | B-23 | Camera switches to next running car when shown car stops | ✅ | src/ui/app.test.js |
 | B-24 | UI fonts remain pixelated after load | ✅ | Verified Manually (CSS) |
+| B-25 | PART_DEFINITIONS.small_wheel has motorMultiplier=1.5 and breakMultiplier=0.6 | ✅ | src/gameConfig.test.js |
+| B-26 | PART_DEFINITIONS.tiny_wheel has motorMultiplier=2.0 and breakMultiplier=0.3 | ✅ | src/gameConfig.test.js |
+| B-27 | createRandomDNA can generate small_wheel when unlocked | ✅ | src/ga/dna.test.js |
+| B-28 | createRandomDNA can generate tiny_wheel when unlocked | ✅ | src/ga/dna.test.js |

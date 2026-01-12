@@ -4,6 +4,13 @@ description: How to commit code changes after completing work
 
 # Commit Workflow
 
+## Test Framework
+
+**This project uses Vitest** as the test runner.
+- Run all tests: `npx vitest run`
+- Run a single test file: `npx vitest run <path/to/file.test.js>`
+- Watch mode: `npx vitest`
+
 ## When to Commit
 
 Commit after **each behavior** is completed. A behavior is complete when:

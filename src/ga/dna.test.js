@@ -26,4 +26,26 @@ describe('dna.js', () => {
         const clone = cloneDNA(original);
         expect(clone).not.toBe(original);
     });
+
+    // B-27: Given small_wheel in unlocked parts, When createRandomDNA is called many times, Then at least one DNA contains a small_wheel part
+    it('createRandomDNA can generate small_wheel when unlocked', () => {
+        const unlocked = new Set(['block', 'wheel', 'small_wheel']);
+        let found = false;
+        for (let i = 0; i < 100 && !found; i++) {
+            const dna = createRandomDNA(8, unlocked);
+            found = dna.parts.some(p => p.kind === 'small_wheel');
+        }
+        expect(found).toBe(true);
+    });
+
+    // B-28: Given tiny_wheel in unlocked parts, When createRandomDNA is called many times, Then at least one DNA contains a tiny_wheel part
+    it('createRandomDNA can generate tiny_wheel when unlocked', () => {
+        const unlocked = new Set(['block', 'wheel', 'tiny_wheel']);
+        let found = false;
+        for (let i = 0; i < 100 && !found; i++) {
+            const dna = createRandomDNA(8, unlocked);
+            found = dna.parts.some(p => p.kind === 'tiny_wheel');
+        }
+        expect(found).toBe(true);
+    });
 });

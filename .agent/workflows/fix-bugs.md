@@ -2,6 +2,17 @@
 description: use this to fix bugs
 ---
 
+# Fix Bugs Workflow
+
+## Test Framework
+
+**This project uses Vitest** as the test runner.
+- Run all tests: `npx vitest run`
+- Run a single test file: `npx vitest run <path/to/file.test.js>`
+- Watch mode: `npx vitest`
+
+---
+
 Step 0 — Baseline failing signal
 
 0.1 Run all unit tests and locate failures.
