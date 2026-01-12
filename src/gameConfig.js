@@ -19,6 +19,7 @@ export const PART_DEFINITIONS = {
         kind: 'wheel',
         icon: '⚙️',
         tier: 'common',
+        motorMultiplier: 1.3
     },
     big_wheel: {
         id: 'big_wheel',
