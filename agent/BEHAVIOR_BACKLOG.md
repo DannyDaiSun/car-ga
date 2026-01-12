@@ -27,3 +27,4 @@ Run all tests: `npx vitest run`
 | B-21 | getFitness returns non-negative number | ✅ | src/physics/simulate.test.js |
 | B-22 | Successfully evolves to next generation when cars finish | ✅ | src/ga/integration.test.js |
 | B-23 | Camera switches to next running car when shown car stops | ✅ | src/ui/app.test.js |
+| B-24 | UI fonts remain pixelated after load | ✅ | Verified Manually (CSS) |

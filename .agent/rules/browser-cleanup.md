@@ -9,10 +9,7 @@ Purpose: Ensure that any browser instances opened for testing purposes are prope
 
 2. **Test Runners**: If running automated tests that launch browsers (e.g., Cypress, Playwright, Selenium), ensure the test command includes flags to close the browser upon completion (e.g., `--headless` or specific configuration to auto-close).
 
-3. **Manual Validation**: If the agent opens a browser for manual-like verification, the agent must close that specific window/tab or terminate the process when the
-## Rules
-
-1. is done.
+3. **Manual Validation**: If the agent opens a browser for manual-like verification, the agent must close that specific window/tab or terminate the process when the verification is done.
 
 ## Verification
 
