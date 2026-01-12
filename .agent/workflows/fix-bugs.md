@@ -20,7 +20,9 @@ Step 0 — Baseline failing signal
 Step 1 — Identify missing behavior
 
 1.1 Convert the bug into a missing behavior (Given/When/Then).
-1.2 Add it as a TODO in agent/BEHAVIOR_BACKLOG.md under a Bugfix work item.
+1.2 Add it as a TODO in a new file under `agent/behaviors/`.
+	•	Use a globally unique ID (recommended: `B-YYYYMMDD-HHMMSS-<slug>`).
+	•	Avoid editing `agent/BEHAVIOR_BACKLOG.md` (legacy-only).
 
 Step 2 — Implement via the same behavior loop
 
@@ -91,10 +93,10 @@ agent/LESSONS.md template
 - Missing knowledge:
 - Guidance for future agents:
 
-agent/TEST_RUNTIME.md template
+agent/test-runtime/<file>.md template
 
-# Test Runtime
-
-## Slow tests (>2ms)
-| Test | Runtime | Cause hypothesis | Mitigation tried | Before/After |
-|------|---------|------------------|------------------|-------------|
+Test: <test name or file path>
+Runtime: <ms>
+Cause hypothesis: <short note>
+Mitigation tried: <short note>
+Before/After: <metrics or notes>

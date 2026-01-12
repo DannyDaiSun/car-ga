@@ -26,7 +26,9 @@ Step 1 — Decompose into atomic behaviors
 	•	are as independent as possible
 	•	are phrased as “Given/When/Then outcome”
 
-1.2 Write behaviors into agent/BEHAVIOR_BACKLOG.md as TODO.
+1.2 Write each behavior into its own file under `agent/behaviors/` as TODO.
+	•	Use a globally unique ID (recommended: `B-YYYYMMDD-HHMMSS-<slug>`).
+	•	Avoid editing `agent/BEHAVIOR_BACKLOG.md` (legacy-only).
 
 Step 2 — Choose the next behavior (best judgment)
 
@@ -77,9 +79,9 @@ Actions:
 	•	If any test fails: fix with minimal changes until green.
 
 3.6 Mark DONE + record runtime
-	•	Mark the behavior row DONE.
+	•	Mark the behavior file Status as DONE.
 	•	If this test runtime > 2ms:
-	•	record it in agent/TEST_RUNTIME.md as slow.
+	•	record it as a new file in `agent/test-runtime/`.
 
 3.7 Commit
 	•	Commit with message B-XYZ: <behavior summary>.
@@ -91,7 +93,7 @@ Return to Step 2 until all behaviors are DONE.
 Step 4 — Slow test cleanup
 
 After all behaviors are DONE:
-	•	Review agent/TEST_RUNTIME.md.
+	•	Review `agent/test-runtime/`.
 	•	For each slow test (>2ms), attempt to reduce runtime by:
 	•	eliminating heavy setup
 	•	minimizing fixtures
@@ -105,4 +107,4 @@ Completion
 A feature is complete when:
 	•	All backlog behaviors are DONE
 	•	All unit tests pass
-	•	Slow tests have been addressed or explicitly justified in TEST_RUNTIME.md as not reasonably reducible
+	•	Slow tests have been addressed or explicitly justified in `agent/test-runtime/`

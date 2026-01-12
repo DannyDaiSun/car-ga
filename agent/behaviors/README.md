@@ -4,7 +4,8 @@ To reduce merge conflicts, each behavior is captured in its own file.
 
 ## File naming
 
-- `B-<id>.md` (e.g., `B-39.md`)
+- `B-<id>.md` with globally unique IDs to avoid conflicts.
+- Recommended format: `B-YYYYMMDD-HHMMSS-<slug>.md` (e.g., `B-20250110-153045-reset-camera.md`)
 
 ## Required fields
 
