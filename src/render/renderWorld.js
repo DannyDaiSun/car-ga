@@ -185,30 +185,12 @@ function getPolygonDimensions(body) {
 
 function renderSprite(ctx, body, userData) {
     const { partKind, partId, carId } = userData;
-    let spriteName = null;
 
     // Deterministic random choice based on carId + partId
-    // We use a simple hash to pick a variant
     const seed = (carId || 0) + (partId || 0);
 
-    // Map kinds to assets (Simpler Geometric Style)
-    if (partKind === 'block') {
-        // Map both variants to geo_body_sport for now (until we have more geo bodies)
-        // Actually we have geo_body_truck too.
-        const variants = ['geo_body_sport', 'geo_body_sport'];
-        spriteName = variants[seed % variants.length];
-    } else if (partKind === 'long_body') {
-        spriteName = 'geo_body_truck';
-    } else if (partKind === 'wheel') {
-        // Only have Mag Wheel for now
-        spriteName = 'geo_wheel_mag';
-    } else if (partKind === 'big_wheel') {
-        // Map to Mag Wheel (maybe scaled larger in render/physics automatically by dimensions)
-        spriteName = 'geo_wheel_mag';
-    } else if (partKind === 'jetpack') {
-        spriteName = 'cyber_booster_rocket'; // Kept old one
-    }
-
+    // Use partRegistry for sprite mapping
+    const spriteName = partRegistry.getSpriteNameForPart(partKind, seed);
     const img = visualAssets[spriteName];
 
     // Get dimensions from the first fixture (assuming single shape per body for simplicity)
