@@ -75,4 +75,50 @@ describe('partRegistry', () => {
     // Then it returns true
     expect(result).toBe(true);
   });
+
+  // B-021519: Verify visual styles are consistent across modules
+  it('visual styles are consistent for all part kinds', () => {
+    // Given various part kinds
+    const partKinds = ['block', 'wheel', 'jetpack', 'long_body'];
+
+    // When getting styles from registry
+    partKinds.forEach(kind => {
+      const style = getPartVisualStyle(kind);
+
+      // Then each style has all required properties
+      expect(style.fill).toBeDefined();
+      expect(style.stroke).toBeDefined();
+      expect(style.accent).toBeDefined();
+    });
+  });
+
+  // B-021520: Verify sprite names are consistent
+  it('sprite names are deterministic for same seed', () => {
+    // Given a part kind and seed
+    const partKind = 'wheel';
+    const seed = 42;
+
+    // When getting sprite name multiple times
+    const sprite1 = getSpriteNameForPart(partKind, seed);
+    const sprite2 = getSpriteNameForPart(partKind, seed);
+
+    // Then results are identical
+    expect(sprite1).toBe(sprite2);
+  });
+
+  // B-021521: Registry handles unknown part kinds gracefully
+  it('registry returns defaults for unknown part kinds', () => {
+    // Given an unknown part kind
+    const unknownKind = 'nonexistent_part';
+
+    // When calling registry functions
+    const style = getPartVisualStyle(unknownKind);
+    const sprite = getSpriteNameForPart(unknownKind, 0);
+    const shapeType = getShapeType(unknownKind);
+
+    // Then sensible defaults are returned
+    expect(style).toBeDefined(); // Should return default block style
+    expect(sprite).toBeDefined(); // Should return default sprite
+    expect(shapeType).toBe('box'); // Default to box shape
+  });
 });
