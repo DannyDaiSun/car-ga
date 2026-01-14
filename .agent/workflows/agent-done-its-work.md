@@ -40,39 +40,57 @@ Check the output:
 
 ---
 
-## Step 2 — Commit (All Tests Passed)
+## Step 2 — Slow Test Cleanup (Before Commit)
+
+Before committing, review slow tests:
+
+2.1 Check if any tests in `agent/test-runtime/` are from your current work.
+
+2.2 For each slow test (>2ms), attempt to reduce runtime by:
+- Eliminating heavy setup
+- Minimizing fixtures
+- Replacing external dependencies with fakes/mocks
+- Enforcing determinism (seed/time)
+
+2.3 Each optimization should preserve one-assertion-per-test.
+
+2.4 If optimization is not feasible, document justification in the test runtime file.
+
+---
+
+## Step 3 — Commit (All Tests Passed)
 
 Follow the `/commit` workflow:
 
-2.1 Stage all changes:
+3.1 Stage all changes:
 // turbo
 ```bash
 git add -A
 ```
 
-2.2 Commit with behavior ID:
+3.2 Commit with behavior ID:
 ```bash
 git commit -m "B-<id>: <behavior summary>"
 ```
 
-2.3 Update the behavior file in `agent/behaviors/` to mark Status as DONE.
+3.3 Update the behavior file in `agent/behaviors/` to mark Status as DONE.
 
 **Done!** Work is complete.
 
 ---
 
-## Step 3 — Fix Failing Tests
+## Step 4 — Fix Failing Tests
 
 If any tests failed:
 
-3.1 Identify the failing test(s) from the output.
+4.1 Identify the failing test(s) from the output.
 
-3.2 Switch to the `/fix-bugs` workflow:
+4.2 Switch to the `/fix-bugs` workflow:
 - Convert each failure into a missing behavior (Given/When/Then)
 - Add as a TODO in a new file under `agent/behaviors/`
 - Create targeted test, implement minimal fix
 
-3.3 After fixing, **restart this workflow from Step 1**.
+4.3 After fixing, **restart this workflow from Step 1**.
 
 ---
 
@@ -93,17 +111,32 @@ If any tests failed:
    PASS        FAIL
      │           │
      ▼           ▼
-┌─────────┐  ┌─────────────┐
-│ Commit  │  │ /fix-bugs   │
-│ Changes │  │ workflow    │
-└────┬────┘  └──────┬──────┘
-     │              │
-     ▼              │
-   DONE ◄───────────┘
+┌─────────────┐  ┌─────────────┐
+│ Slow Test   │  │ /fix-bugs   │
+│ Cleanup     │  │ workflow    │
+└──────┬──────┘  └──────┬──────┘
+       │                │
+       ▼                │
+┌─────────────┐         │
+│   Commit    │         │
+│   Changes   │         │
+└──────┬──────┘         │
+       │                │
+       ▼                │
+     DONE ◄─────────────┘
           (restart from Step 1)
 ```
 
 ---
+
+## Completion Criteria
+
+A work item is complete when:
+- All backlog behaviors are DONE
+- All unit tests pass
+- All E2E tests pass (if UI changes were made)
+- Slow tests have been addressed or explicitly justified in `agent/test-runtime/`
+- All changes are committed
 
 ## Rules
 
@@ -111,3 +144,4 @@ If any tests failed:
 2. **Fix before commit** - Enter fix-bugs workflow if any test fails
 3. **Loop until green** - Restart this workflow after each fix attempt
 4. **One behavior per commit** - Don't batch multiple behaviors
+5. **Clean up slow tests** - Address tests > 2ms before declaring complete

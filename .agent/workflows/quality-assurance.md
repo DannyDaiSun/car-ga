@@ -4,6 +4,32 @@ description: Browser QA Tester for Web Game
 
 # QA Workflow — Screenshot-First, Expectation-Driven Testing (Web Game)
 
+## Project Context
+
+**car-ga** is a genetic algorithm car evolution simulation game built with:
+- **Vite** - Build tool and dev server
+- **Planck.js** - 2D physics engine (Box2D port)
+- **Vitest** - Unit testing framework
+- **Playwright** - E2E testing framework
+- **Vanilla JS** - No framework, ES modules
+
+### Development Commands
+```bash
+npm run dev          # Start dev server
+npm run test         # Run unit tests
+npm run test:e2e     # Run E2E tests
+npm run test:e2e:ui  # Run E2E tests with UI
+npm run test:all     # Run all tests
+```
+
+### CI/CD Pipelines
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `unit-tests.yml` | Push, PR | Run unit tests |
+| `scheduled-qa.yml` | Every 6 hours, Push to main | Run E2E tests, create issues on failure |
+
+**Note:** This workflow relates to `scheduled-qa.yml` which automatically runs E2E tests and creates GitHub issues when failures are detected.
+
 ## Purpose
 Establish a repeatable QA process for a browser-playable game using an AI agent with a built-in browser. The core method is: **assume expected states → capture screenshots at critical points → analyze each screenshot against expectations → file bugs → re-capture screenshots to verify fixes**.
 

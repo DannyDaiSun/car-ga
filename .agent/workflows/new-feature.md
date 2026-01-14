@@ -4,6 +4,44 @@ description: Add New Functionality - use this when adding any new behavior to th
 
 # New Feature Workflow
 
+## Project Context
+
+**car-ga** is a genetic algorithm car evolution simulation game built with:
+- **Vite** - Build tool and dev server
+- **Planck.js** - 2D physics engine (Box2D port)
+- **Vitest** - Unit testing framework
+- **Playwright** - E2E testing framework
+- **Vanilla JS** - No framework, ES modules
+
+### Directory Structure
+```
+car-ga/
+├── src/              # Source code
+│   ├── ga/           # Genetic algorithm (DNA, mutation, crossover, selection)
+│   ├── physics/      # Physics simulation (buildCar, simulate, track)
+│   ├── ui/           # UI components (app, store, minimap)
+│   └── *.js          # Core modules (gameConfig, etc.)
+├── e2e/              # Playwright E2E tests
+├── agent/            # TDD artifacts (behaviors/, LESSONS.md)
+└── .agent/workflows/ # Workflow definitions (this file)
+```
+
+### Development Commands
+```bash
+npm run dev        # Start dev server
+npm run test       # Run unit tests
+npm run test:e2e   # Run E2E tests
+npm run test:all   # Run all tests
+npm run lint       # Lint code
+npm run build      # Build for production
+```
+
+### CI/CD Pipelines
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| `unit-tests.yml` | Push, PR | Run unit tests |
+| `scheduled-qa.yml` | Every 6 hours, Push to main | Run E2E tests, create issues on failure |
+
 ## Test Framework
 
 **This project uses Vitest** as the test runner.
