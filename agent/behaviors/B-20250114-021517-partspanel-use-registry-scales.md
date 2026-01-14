@@ -2,7 +2,7 @@
 
 **Phase:** 5 - Migrate partsPanel
 **Priority:** MEDIUM
-**Status:** TODO
+**Status:** DONE
 
 ## Behavior (Given/When/Then)
 
