@@ -77,4 +77,25 @@ describe('buildCar', () => {
     // Then the joint should have enableMotor set to true
     expect(joints[0].isMotorEnabled()).toBe(true);
   });
+
+  it('wheel parts get Circle shape fixture', () => {
+    // Given a car DNA with a wheel as root
+    const dna = {
+      parts: [
+        { id: 0, kind: 'wheel', radius: 0.4, density: 1, friction: 0.9, motorSpeed: -20, maxMotorTorque: 50 }
+      ],
+      joints: []
+    };
+
+    const position = planck.Vec2(0, 5);
+    const carId = 1;
+
+    // When the car is built
+    const { parts } = buildCar(world, dna, position, carId);
+    const wheelBody = parts.get(0);
+    const fixture = wheelBody.getFixtureList();
+
+    // Then the fixture should have a Circle shape
+    expect(fixture.getShape().getType()).toBe('circle');
+  });
 });
