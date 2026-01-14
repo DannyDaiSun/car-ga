@@ -98,4 +98,25 @@ describe('buildCar', () => {
     // Then the fixture should have a Circle shape
     expect(fixture.getShape().getType()).toBe('circle');
   });
+
+  it('block parts get Box shape fixture', () => {
+    // Given a car DNA with a block as root
+    const dna = {
+      parts: [
+        { id: 0, kind: 'block', w: 1, h: 0.5, density: 1, friction: 0.3 }
+      ],
+      joints: []
+    };
+
+    const position = planck.Vec2(0, 5);
+    const carId = 1;
+
+    // When the car is built
+    const { parts } = buildCar(world, dna, position, carId);
+    const blockBody = parts.get(0);
+    const fixture = blockBody.getFixtureList();
+
+    // Then the fixture should have a Polygon shape (Box)
+    expect(fixture.getShape().getType()).toBe('polygon');
+  });
 });
