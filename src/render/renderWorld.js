@@ -2,6 +2,7 @@
 import { PI } from '../ga/dna.js';
 import * as planck from 'planck-js';
 import { getTrackHeight } from '../physics/track.js';
+import * as partRegistry from '../partRegistry.js';
 
 const SCALE = 20; // pixels per meter
 
@@ -24,29 +25,13 @@ function loadAssets() {
 }
 loadAssets();
 
-const PART_STYLE_MAP = {
-    block: { fill: '#d9455f', stroke: '#2f483a', accent: '#f4b23f' },
-    long_body: { fill: '#4a74e0', stroke: '#1d2e66', accent: '#9bb8ff' },
-    wheel: { fill: '#43464b', stroke: '#1b1e23', accent: '#8b8f96' },
-    big_wheel: { fill: '#3d3f44', stroke: '#1b1e23', accent: '#9ba2ab' },
-    small_wheel: { fill: '#4f5258', stroke: '#1b1e23', accent: '#9ba2ab' },
-    tiny_wheel: { fill: '#5b6066', stroke: '#1b1e23', accent: '#9ba2ab' },
-    jetpack: { fill: '#ff8a3d', stroke: '#7a2f0b', accent: '#ffd066' }
-};
-
-const WHEEL_DETAIL_SCALE = {
-    wheel: 0.55,
-    big_wheel: 0.45,
-    small_wheel: 0.65,
-    tiny_wheel: 0.75
-};
-
+// Delegate to partRegistry for styles and scales
 export function getPartRenderStyle(partKind = 'block') {
-    return PART_STYLE_MAP[partKind] ?? PART_STYLE_MAP.block;
+    return partRegistry.getPartVisualStyle(partKind);
 }
 
 export function getWheelDetailScale(partKind = 'wheel') {
-    return WHEEL_DETAIL_SCALE[partKind] ?? WHEEL_DETAIL_SCALE.wheel;
+    return partRegistry.getWheelDetailScale(partKind);
 }
 
 export function render(ctx, world, cameraX, width, height, championId, miniMapData) {
@@ -200,30 +185,12 @@ function getPolygonDimensions(body) {
 
 function renderSprite(ctx, body, userData) {
     const { partKind, partId, carId } = userData;
-    let spriteName = null;
 
     // Deterministic random choice based on carId + partId
-    // We use a simple hash to pick a variant
     const seed = (carId || 0) + (partId || 0);
 
-    // Map kinds to assets (Simpler Geometric Style)
-    if (partKind === 'block') {
-        // Map both variants to geo_body_sport for now (until we have more geo bodies)
-        // Actually we have geo_body_truck too.
-        const variants = ['geo_body_sport', 'geo_body_sport'];
-        spriteName = variants[seed % variants.length];
-    } else if (partKind === 'long_body') {
-        spriteName = 'geo_body_truck';
-    } else if (partKind === 'wheel') {
-        // Only have Mag Wheel for now
-        spriteName = 'geo_wheel_mag';
-    } else if (partKind === 'big_wheel') {
-        // Map to Mag Wheel (maybe scaled larger in render/physics automatically by dimensions)
-        spriteName = 'geo_wheel_mag';
-    } else if (partKind === 'jetpack') {
-        spriteName = 'cyber_booster_rocket'; // Kept old one
-    }
-
+    // Use partRegistry for sprite mapping
+    const spriteName = partRegistry.getSpriteNameForPart(partKind, seed);
     const img = visualAssets[spriteName];
 
     // Get dimensions from the first fixture (assuming single shape per body for simplicity)

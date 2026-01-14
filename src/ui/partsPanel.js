@@ -1,22 +1,7 @@
 import { PART_DEFINITIONS } from '../gameConfig.js';
+import * as partRegistry from '../partRegistry.js';
 
 const ICON_SIZE = 44;
-const ICON_STYLE_MAP = {
-    block: { fill: '#d9455f', stroke: '#2f483a', accent: '#f4b23f' },
-    long_body: { fill: '#4a74e0', stroke: '#1d2e66', accent: '#9bb8ff' },
-    wheel: { fill: '#43464b', stroke: '#1b1e23', accent: '#8b8f96' },
-    big_wheel: { fill: '#3d3f44', stroke: '#1b1e23', accent: '#9ba2ab' },
-    small_wheel: { fill: '#4f5258', stroke: '#1b1e23', accent: '#9ba2ab' },
-    tiny_wheel: { fill: '#5b6066', stroke: '#1b1e23', accent: '#9ba2ab' },
-    jetpack: { fill: '#ff8a3d', stroke: '#7a2f0b', accent: '#ffd066' }
-};
-const WHEEL_DETAIL_SCALE = {
-    wheel: 0.55,
-    big_wheel: 0.45,
-    small_wheel: 0.65,
-    tiny_wheel: 0.75
-};
-const WHEEL_KINDS = new Set(['wheel', 'big_wheel', 'small_wheel', 'tiny_wheel']);
 
 /**
  * Initialize the parts panel toggle and populate the grid
@@ -213,13 +198,13 @@ function createPartIcon(part) {
 
 function drawPartPreview(ctx, part) {
     const center = ICON_SIZE / 2;
-    const style = ICON_STYLE_MAP[part.kind] ?? ICON_STYLE_MAP.block;
+    const style = partRegistry.getPartVisualStyle(part.kind);
     ctx.clearRect(0, 0, ICON_SIZE, ICON_SIZE);
     ctx.fillStyle = style.fill;
     ctx.strokeStyle = style.stroke;
     ctx.lineWidth = 2;
 
-    if (WHEEL_KINDS.has(part.kind)) {
+    if (partRegistry.isWheelKind(part.kind)) {
         const radius = 14;
         ctx.beginPath();
         ctx.arc(center, center, radius, 0, Math.PI * 2);
@@ -227,7 +212,7 @@ function drawPartPreview(ctx, part) {
         ctx.stroke();
         ctx.strokeStyle = style.accent;
         ctx.beginPath();
-        const detailScale = WHEEL_DETAIL_SCALE[part.kind] ?? WHEEL_DETAIL_SCALE.wheel;
+        const detailScale = partRegistry.getWheelDetailScale(part.kind);
         ctx.arc(center, center, radius * detailScale, 0, Math.PI * 2);
         ctx.stroke();
         return;

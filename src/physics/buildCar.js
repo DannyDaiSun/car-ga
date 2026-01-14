@@ -2,6 +2,7 @@
 import * as planck from 'planck-js';
 
 import assetDimensions from '../render/assetDimensions.json';
+import * as partRegistry from '../partRegistry.js';
 
 const SCALE = 20; // Pixels per meter
 
@@ -57,25 +58,9 @@ export function buildCar(world, dna, position, carId) {
         let h = partDef.h;
         let r = partDef.radius;
 
-        // Visual Asset Logic (Matches renderWorld.js)
+        // Visual Asset Logic - use partRegistry for sprite mapping
         const seed = (carId || 0) + (partDef.id || 0);
-        let spriteName = null;
-        if (partDef.kind === 'block') {
-            const variants = ['geo_body_sport', 'geo_body_sport'];
-            spriteName = variants[seed % variants.length];
-        } else if (partDef.kind === 'long_body') {
-            spriteName = 'geo_body_truck';
-        } else if (partDef.kind === 'wheel') {
-            spriteName = 'geo_wheel_mag';
-        } else if (partDef.kind === 'big_wheel') {
-            spriteName = 'geo_wheel_mag';
-        } else if (partDef.kind === 'small_wheel') {
-            spriteName = 'geo_wheel_mag';
-        } else if (partDef.kind === 'tiny_wheel') {
-            spriteName = 'geo_wheel_mag';
-        } else if (partDef.kind === 'jetpack') {
-            spriteName = 'cyber_booster_rocket';
-        }
+        const spriteName = partRegistry.getSpriteNameForPart(partDef.kind, seed);
 
         // Apply visual dimensions if asset exists
         if (spriteName && assetDimensions[spriteName]) {
@@ -89,11 +74,13 @@ export function buildCar(world, dna, position, carId) {
             r = Math.min(w, h) / 2;
         }
 
+        // Use partRegistry for shape type determination
         let shape;
-        if (partDef.kind === 'block' || partDef.kind === 'long_body' || partDef.kind === 'jetpack') {
-            shape = planck.Box(w / 2, h / 2);
-        } else if (partDef.kind === 'wheel' || partDef.kind === 'big_wheel' || partDef.kind === 'small_wheel' || partDef.kind === 'tiny_wheel') {
+        const shapeType = partRegistry.getShapeType(partDef.kind);
+        if (shapeType === 'circle') {
             shape = planck.Circle(r);
+        } else {
+            shape = planck.Box(w / 2, h / 2);
         }
 
         body.createFixture({
@@ -170,7 +157,7 @@ export function buildCar(world, dna, position, carId) {
                 enableLimit: j.enableLimit,
                 lowerAngle: j.lowerAngle,
                 upperAngle: j.upperAngle,
-                enableMotor: (definitions.get(j.childId).kind === 'wheel' || definitions.get(j.childId).kind === 'big_wheel'),
+                enableMotor: partRegistry.hasMotor(definitions.get(j.childId).kind),
                 motorSpeed: definitions.get(j.childId).motorSpeed || 0,
                 maxMotorTorque: definitions.get(j.childId).maxMotorTorque || 0
             }, parent, child, anchorWorld);
