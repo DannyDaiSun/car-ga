@@ -4,10 +4,6 @@
  * Works in both browser and Node.js environments
  */
 
-import { readFileSync } from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
 // Cache loaded configs
 let configCache = {};
 
@@ -27,12 +23,16 @@ export async function loadConfig(filename) {
   let config;
 
   if (isNode) {
-    // Node.js environment (for tests)
+    // Node.js environment (for tests) - use dynamic imports to avoid bundling
     try {
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = dirname(__filename);
-      const configPath = join(__dirname, '../../config', filename);
-      const fileContent = readFileSync(configPath, 'utf-8');
+      const fs = await import('fs');
+      const url = await import('url');
+      const path = await import('path');
+
+      const __filename = url.fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const configPath = path.join(__dirname, '../../config', filename);
+      const fileContent = fs.readFileSync(configPath, 'utf-8');
       config = JSON.parse(fileContent);
     } catch (error) {
       throw new Error(`Failed to load config in Node.js: ${filename} - ${error.message}`);
