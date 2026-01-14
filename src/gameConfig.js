@@ -56,8 +56,8 @@ export const PART_DEFINITIONS = {
     jetpack: {
         id: 'jetpack',
         label: 'Jetpack',
-        desc: 'Applies periodic forward thrust bursts',
-        ability: 'Periodic boost bursts',
+        desc: 'Applies forward thrust, recharges on track contact',
+        ability: 'Energy-based thrust with track recharge',
         price: 300,
         unlocked: false,
         kind: 'jetpack',
@@ -65,7 +65,10 @@ export const PART_DEFINITIONS = {
         tier: 'legendary',
         thrust: 200, // Force amount
         boostInterval: 3.0,
-        boostDuration: 0.3
+        boostDuration: 0.3,
+        maxEnergy: 100, // Maximum energy capacity
+        energyConsumptionRate: 50, // Energy consumed per second while thrusting
+        rechargeRate: 80 // Energy recharged per second while in contact with track
     },
     small_wheel: {
         id: 'small_wheel',
