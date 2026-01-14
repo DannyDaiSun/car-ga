@@ -64,8 +64,8 @@ export const PART_DEFINITIONS = {
         icon: '🚀',
         tier: 'legendary',
         thrust: 200, // Force amount
-        boostInterval: 3.0,
-        boostDuration: 0.3,
+        boostInterval: 4.0, // 1 second work + 3 second cooldown
+        boostDuration: 1.0, // Boost active for 1 second
         maxEnergy: 100, // Maximum energy capacity
         energyConsumptionRate: 50, // Energy consumed per second while thrusting
         rechargeRate: 80 // Energy recharged per second while in contact with track

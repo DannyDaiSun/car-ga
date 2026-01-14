@@ -34,7 +34,8 @@ describe('jetpack energy system', () => {
 
     it('recharges energy when in contact', () => {
         const energyState = { energy: 50 };
-        const result = updateJetpackEnergy(energyState, jetpackDef, 0.5, true, 0.016);
+        // Use timeSeconds=2.0 (during cooldown period, not during boost)
+        const result = updateJetpackEnergy(energyState, jetpackDef, 2.0, true, 0.016);
         expect(result.energy).toBeGreaterThan(50);
         expect(result.energy).toBeLessThanOrEqual(jetpackDef.maxEnergy);
     });
