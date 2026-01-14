@@ -34,8 +34,8 @@ export const PART_DEFINITIONS = {
         icon: '🛞',
         tier: 'uncommon',
         // Special props handled in DNA generation
-        minRadius: 0.8,
-        maxRadius: 1.5
+        minRadius: 1.2,
+        maxRadius: 2.0
     },
     long_body: {
         id: 'long_body',
@@ -48,8 +48,8 @@ export const PART_DEFINITIONS = {
         icon: '📏',
         tier: 'rare',
         // Special props
-        minW: 2.0,
-        maxW: 4.0,
+        minW: 3.0,
+        maxW: 6.0,
         minH: 0.2,
         maxH: 0.4
     },
@@ -64,8 +64,8 @@ export const PART_DEFINITIONS = {
         icon: '🚀',
         tier: 'legendary',
         thrust: 200, // Force amount
-        boostInterval: 2.0,
-        boostDuration: 0.6
+        boostInterval: 3.0,
+        boostDuration: 0.3
     },
     small_wheel: {
         id: 'small_wheel',
@@ -77,8 +77,8 @@ export const PART_DEFINITIONS = {
         kind: 'small_wheel',
         icon: '⚙️',
         tier: 'uncommon',
-        minRadius: 0.15,
-        maxRadius: 0.3,
+        minRadius: 0.1,
+        maxRadius: 0.2,
         motorMultiplier: 1.5,   // 50% faster motor speed
         breakMultiplier: 0.6    // 40% easier to break
     },
