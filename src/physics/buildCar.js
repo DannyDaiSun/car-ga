@@ -40,7 +40,7 @@ export function buildCar(world, dna, position, carId) {
             type,
             position: pos,
             angle: angle,
-            linearDamping: 0.0,
+            linearDamping: 0.1,
             angularDamping: 0.05
         });
 

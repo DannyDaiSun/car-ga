@@ -7,6 +7,7 @@ const TIME_STEP = 1 / 60;
 const MAX_TIME = 20; // seconds
 const MIN_PROGRESS_EPS = 0.05; // meters
 const PROGRESS_TIMEOUT = 3; // seconds
+const AIR_FRICTION_COEFFICIENT = 0.3; // Additional drag force for flying cars
 
 export class Simulation {
     constructor(dna) {
@@ -33,11 +34,36 @@ export class Simulation {
         }
     }
 
+    applyAirFriction() {
+        // Apply air friction to parts not in contact with ground
+        for (let part of this.parts.values()) {
+            // Check if part is in contact with any fixture
+            let isInContact = false;
+            for (let contact = part.getContactList(); contact; contact = contact.next) {
+                isInContact = true;
+                break;
+            }
+
+            // If flying (no contact), apply air friction
+            if (!isInContact) {
+                const velocity = part.getLinearVelocity();
+                const dragForce = planck.Vec2(
+                    -velocity.x * AIR_FRICTION_COEFFICIENT,
+                    -velocity.y * AIR_FRICTION_COEFFICIENT
+                );
+                part.applyForceToCenter(dragForce);
+            }
+        }
+    }
+
     step() {
         if (this.finished) return;
 
         this.world.step(TIME_STEP);
         this.time += TIME_STEP;
+
+        // Apply air friction for flying cars
+        this.applyAirFriction();
 
         // Check joints
         for (let i = this.joints.length - 1; i >= 0; i--) {
