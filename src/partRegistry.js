@@ -11,6 +11,17 @@ const PART_STYLE_MAP = {
   jetpack: { fill: '#ff8a3d', stroke: '#7a2f0b', accent: '#ffd066' }
 };
 
+const WHEEL_DETAIL_SCALE = {
+  wheel: 0.55,
+  big_wheel: 0.45,
+  small_wheel: 0.65,
+  tiny_wheel: 0.75
+};
+
 export function getPartVisualStyle(partKind = 'block') {
   return PART_STYLE_MAP[partKind] ?? PART_STYLE_MAP.block;
+}
+
+export function getWheelDetailScale(partKind = 'wheel') {
+  return WHEEL_DETAIL_SCALE[partKind] ?? WHEEL_DETAIL_SCALE.wheel;
 }
