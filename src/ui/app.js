@@ -4,6 +4,7 @@ import { createTrack, getTrackHeight } from '../physics/track.js';
 import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
 import { isJetpackBoostActive, updateJetpackEnergy, canJetpackThrust } from '../physics/jetpack.js';
+import { getInvalidJetpacks } from '../physics/jetpackValidation.js';
 import { render } from '../render/renderWorld.js';
 import { ECONOMY } from '../gameConfig.js';
 
@@ -58,6 +59,41 @@ export class App {
         this.requestRef = null;
         this.statsCallback = null;
         this.cameraX = 0;
+    }
+
+    _explodeJetpack(car, jetpackPartId) {
+        // Remove the jetpack body and its connecting joint
+        const jetpackBody = car.parts.get(jetpackPartId);
+        if (!jetpackBody) return;
+
+        // Find and destroy the joint connecting this jetpack to its parent
+        for (let i = car.joints.length - 1; i >= 0; i--) {
+            const joint = car.joints[i];
+            const bodyA = joint.getBodyA();
+            const bodyB = joint.getBodyB();
+
+            // Check if this joint connects the jetpack body
+            if (bodyA === jetpackBody || bodyB === jetpackBody) {
+                this.world.destroyJoint(joint);
+                car.joints.splice(i, 1);
+            }
+        }
+
+        // Remove the jetpack body from physics world
+        this.world.destroyBody(jetpackBody);
+        car.parts.delete(jetpackPartId);
+
+        // Remove from contact set if it was there
+        this.jetpackContactSet.delete(jetpackBody);
+    }
+
+    _handleJetpackExplosions(car) {
+        // Check for invalid jetpacks and explode them
+        const invalidJetpacks = getInvalidJetpacks(car);
+        for (const jetpackPartId of invalidJetpacks) {
+            this._explodeJetpack(car, jetpackPartId);
+        }
+        return invalidJetpacks.length > 0;
     }
 
     _findJetpackBody(bodyA, bodyB) {
@@ -175,7 +211,7 @@ export class App {
                 }
             });
 
-            this.cars.push({
+            const car = {
                 carId: i,
                 dna: dna,
                 parts: parts,
@@ -190,7 +226,12 @@ export class App {
                 velocity: 0,
                 position: 0,
                 energyState: energyState
-            });
+            };
+
+            this.cars.push(car);
+
+            // Check for invalid jetpacks and explode them
+            this._handleJetpackExplosions(car);
         }
 
         this.creationIndex = endIdx;
@@ -279,6 +320,9 @@ export class App {
                         car.inSimulation = true;
                         car.culled = false;
                         // Energy state is preserved across culling/reactivation
+
+                        // Check for invalid jetpacks and explode them
+                        this._handleJetpackExplosions(car);
                     }
                 } else if (car.inSimulation && car.chassis) {
                     // Car is in simulation - check if it should be culled
@@ -374,6 +418,9 @@ export class App {
                         }
                     }
                 }
+
+                // After joints break, check if any jetpacks became invalid
+                this._handleJetpackExplosions(car);
             }
 
             // Check Progress
