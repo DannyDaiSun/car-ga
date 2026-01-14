@@ -203,7 +203,11 @@ describe('App UI Behavior', () => {
             maxX: 0,
             lastProgressTime: 0,
             finished: false,
-            fitness: 0
+            fitness: 0,
+            inSimulation: true,
+            culled: false,
+            velocity: 0,
+            position: 0
         }];
 
         app.stepSimulation(1 / 60);
