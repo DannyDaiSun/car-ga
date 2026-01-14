@@ -170,7 +170,7 @@ export function buildCar(world, dna, position, carId) {
                 enableLimit: j.enableLimit,
                 lowerAngle: j.lowerAngle,
                 upperAngle: j.upperAngle,
-                enableMotor: (definitions.get(j.childId).kind === 'wheel' || definitions.get(j.childId).kind === 'big_wheel'),
+                enableMotor: (definitions.get(j.childId).kind === 'wheel' || definitions.get(j.childId).kind === 'big_wheel' || definitions.get(j.childId).kind === 'small_wheel'),
                 motorSpeed: definitions.get(j.childId).motorSpeed || 0,
                 maxMotorTorque: definitions.get(j.childId).maxMotorTorque || 0
             }, parent, child, anchorWorld);
