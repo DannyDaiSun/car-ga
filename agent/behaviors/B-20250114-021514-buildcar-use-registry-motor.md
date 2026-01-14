@@ -2,7 +2,7 @@
 
 **Phase:** 4 - Migrate buildCar (Break Physics-Render Coupling)
 **Priority:** HIGH
-**Status:** TODO
+**Status:** DONE
 
 ## Behavior (Given/When/Then)
 
