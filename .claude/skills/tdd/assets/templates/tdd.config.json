@@ -1,0 +1,8 @@
+{
+  "artifacts_dir": "agent",
+  "behavior_id_format": "B-{timestamp}-{slug}",
+  "slow_test_threshold_ms": 100,
+  "test_framework": "vitest",
+  "test_command": "npm run test",
+  "commit_after_behavior": true
+}
