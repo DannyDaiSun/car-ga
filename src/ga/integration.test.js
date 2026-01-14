@@ -68,6 +68,7 @@ describe('Game Loop Integration', () => {
             getPosition: () => ({ x: 0, y: 0 })
         };
         const mockCar = {
+            carId: 0,
             chassis: mockChassis,
             lastProgressTime: 0,
             maxX: 0,
@@ -75,7 +76,11 @@ describe('Game Loop Integration', () => {
             parts: [], // empty
             joints: [],
             dna: {},
-            fitness: 0
+            fitness: 0,
+            inSimulation: true,
+            culled: false,
+            velocity: 0,
+            position: 0
         };
 
         app.cars = [mockCar];

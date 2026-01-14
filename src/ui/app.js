@@ -1,6 +1,6 @@
 
 import * as planck from 'planck-js';
-import { createTrack } from '../physics/track.js';
+import { createTrack, getTrackHeight } from '../physics/track.js';
 import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
 import { isJetpackBoostActive } from '../physics/jetpack.js';
@@ -10,6 +10,15 @@ import { ECONOMY } from '../gameConfig.js';
 
 const STOP_WAIT = 3; // seconds
 const MIN_PROGRESS = 0.05; // meters
+
+// Optimization: Staggered car creation
+const CARS_PER_FRAME = 10; // Create 10 cars per frame
+
+// Optimization: Directional culling (only cull cars behind champion)
+const CULL_DISTANCE_BEHIND = 250; // meters behind champion
+const REACTIVATE_DISTANCE = 150; // Re-add when closer than this
+const MIN_VELOCITY_TO_CULL = 0.3; // Don't cull fast-moving cars
+const DRAG_FACTOR = 0.96; // Velocity decay per frame for coasting
 
 export class App {
     constructor(canvas, options = {}) {
@@ -40,6 +49,11 @@ export class App {
         this.world = null;
         this.cars = [];
         this.time = 0;
+
+        // Staggered car creation
+        this.carsToCreate = [];
+        this.creationIndex = 0;
+        this.allCarsCreated = false;
 
         this.requestRef = null;
         this.statsCallback = null;
@@ -86,23 +100,34 @@ export class App {
 
         createTrack(this.world);
 
-        // Build Cars
+        // Build Cars - Staggered across frames in gameplay, all at once in tests
         this.cars = [];
         this.time = 0;
         this.cameraX = 0;
+        this.carsToCreate = [...this.population]; // Queue all cars to create
+        this.creationIndex = 0;
+        this.allCarsCreated = false;
 
-        this.population.forEach((dna, index) => {
+        // Create first batch immediately so tests work and initial frame isn't empty
+        // Subsequent frames will continue staggered creation if more cars remain
+        this.createCarBatch();
+    }
+
+    createCarBatch() {
+        // Create up to CARS_PER_FRAME cars this frame
+        const startIdx = this.creationIndex;
+        const endIdx = Math.min(this.creationIndex + CARS_PER_FRAME, this.carsToCreate.length);
+
+        for (let i = startIdx; i < endIdx; i++) {
+            const dna = this.carsToCreate[i];
             const startPos = planck.Vec2(0, 10); // Check QA-001: Increased from 4 to 10 to prevent clipping
-            const { parts, joints } = buildCar(this.world, dna, startPos, index);
-
-            // Tag bodies with carId (moved to buildCar)
-            // parts.forEach(b => b.setUserData({ carId: index }));
+            const { parts, joints } = buildCar(this.world, dna, startPos, i);
 
             // Find chassis (root)
             const chassis = parts.get(0);
 
             this.cars.push({
-                carId: index,
+                carId: i,
                 dna: dna,
                 parts: parts,
                 joints: joints,
@@ -110,13 +135,25 @@ export class App {
                 maxX: -100,
                 lastProgressTime: 0,
                 finished: false,
-                fitness: 0
+                fitness: 0,
+                inSimulation: true,
+                culled: false,
+                velocity: 0,
+                position: 0
             });
-        });
+        }
+
+        this.creationIndex = endIdx;
+        this.allCarsCreated = this.creationIndex >= this.carsToCreate.length;
     }
 
     loop() {
         if (!this.running) return;
+
+        // Create cars gradually if generation just started
+        if (!this.allCarsCreated) {
+            this.createCarBatch();
+        }
 
         // Speed Multiplier
         // We step physics 'speed' times per frame?
@@ -146,13 +183,84 @@ export class App {
         // Step Physics
         this.world.step(dt);
 
+        // Find leader for culling reference (only after some cars created)
+        let leader = null;
+        if (this.cars.length > 0) {
+            const activeCars = this.cars.filter(c => !c.finished && c.inSimulation && c.chassis);
+            if (activeCars.length > 0) {
+                leader = activeCars.reduce((a, b) => a.chassis.getPosition().x > b.chassis.getPosition().x ? a : b);
+            } else {
+                // All cars finished or not yet created, use any with maxX
+                leader = this.cars.reduce((a, b) => a.maxX > b.maxX ? a : b);
+            }
+        }
+
+        // Directional Culling: Remove cars far behind champion and keep them coasting
+        if (leader && leader.inSimulation && leader.chassis) {
+            const leaderX = leader.chassis.getPosition().x;
+
+            this.cars.forEach(car => {
+                if (car.finished) return;
+                // Ensure car has culling properties (for backward compatibility with tests)
+                if (car.inSimulation === undefined) car.inSimulation = true;
+                if (car.culled === undefined) car.culled = false;
+                if (car.velocity === undefined) car.velocity = 0;
+                if (car.position === undefined) car.position = car.maxX;
+
+                if (!car.inSimulation) {
+                    // Car is culled - update using coasting model
+                    if (car.velocity > 0) {
+                        car.velocity *= DRAG_FACTOR; // Apply drag
+                        if (car.velocity < 0.01) car.velocity = 0;
+                        car.position += car.velocity * dt;
+                        car.maxX = Math.max(car.maxX, car.position);
+                    }
+
+                    // Check if car should be re-added (came back into range)
+                    const relDistance = (car.position || car.maxX) - leaderX;
+                    if (relDistance > -REACTIVATE_DISTANCE && car.dna) {
+                        // Re-add to physics world
+                        const trackHeight = getTrackHeight(car.position || car.maxX);
+                        const pos = planck.Vec2(car.position || car.maxX, trackHeight + 1);
+                        const { parts, joints } = buildCar(this.world, car.dna, pos, car.carId);
+                        car.parts = parts;
+                        car.joints = joints;
+                        car.chassis = parts.get(0);
+                        car.inSimulation = true;
+                        car.culled = false;
+                    }
+                } else if (car.inSimulation && car.chassis) {
+                    // Car is in simulation - check if it should be culled
+                    const carX = car.chassis.getPosition().x;
+                    const relDistance = carX - leaderX; // Negative if behind, positive if ahead
+                    const velocity = Math.abs(car.chassis.getLinearVelocity().x);
+
+                    // Only cull if: far behind AND slow moving AND not leader AND has valid dna
+                    if (relDistance < -CULL_DISTANCE_BEHIND &&
+                        velocity < MIN_VELOCITY_TO_CULL &&
+                        car.carId !== leader.carId &&
+                        car.dna) {
+
+                        // Cull: Remove from physics world but track position/velocity
+                        car.velocity = car.chassis.getLinearVelocity().x;
+                        car.position = carX;
+                        car.culled = true;
+                        car.inSimulation = false;
+
+                        // Destroy all bodies for this car
+                        car.parts.forEach(b => this.world.destroyBody(b));
+                    }
+                }
+            });
+        }
+
         // Update Cars
         let activeCount = 0;
         this.cars.forEach(car => {
             if (car.finished) return;
             activeCount++;
 
-            if (car.chassis) {
+            if (car.inSimulation && car.chassis) {
                 const position = car.chassis.getPosition();
                 if (!Number.isFinite(position.x) || !Number.isFinite(position.y)) {
                     car.finished = true;
@@ -162,50 +270,54 @@ export class App {
                 }
             }
 
-            // Apply Jetpack Forces
-            car.parts.forEach((body, partId) => {
-                // We need to look up the part definition from the DNA to know if it's a jetpack
-                // But map is id->body. We have dna.parts array.
-                // Helper: find partDef for this body
-                const partDef = car.dna.parts.find(p => p.id === partId);
-                if (partDef && partDef.kind === 'jetpack') {
-                    if (!isJetpackBoostActive(this.time, partDef)) {
-                        return;
+            // Apply Jetpack Forces (only for cars in simulation)
+            if (car.inSimulation) {
+                car.parts.forEach((body, partId) => {
+                    // We need to look up the part definition from the DNA to know if it's a jetpack
+                    // But map is id->body. We have dna.parts array.
+                    // Helper: find partDef for this body
+                    const partDef = car.dna.parts.find(p => p.id === partId);
+                    if (partDef && partDef.kind === 'jetpack') {
+                        if (!isJetpackBoostActive(this.time, partDef)) {
+                            return;
+                        }
+                        // Apply force in local 'right' direction (or up?)
+                        // Usually jetpack pushes forward or up. Let's say forward-ish relative to body angle.
+                        // Or standard: Apply force at center in local positive X direction?
+                        // "Thrust" property in DNA.
+                        const thrust = partDef.thrust || 100;
+                        const f = body.getWorldVector(planck.Vec2(Math.cos(0), Math.sin(0))); // Local right ?
+                        // Actually, if we want it to push "forward", it depends on how the part is oriented.
+                        // block w/h. Let's assume force is along local X axis.
+                        f.mul(thrust);
+
+                        // Simple: Apply force to center
+                        body.applyForceToCenter(f, true);
                     }
-                    // Apply force in local 'right' direction (or up?)
-                    // Usually jetpack pushes forward or up. Let's say forward-ish relative to body angle.
-                    // Or standard: Apply force at center in local positive X direction?
-                    // "Thrust" property in DNA.
-                    const thrust = partDef.thrust || 100;
-                    const f = body.getWorldVector(planck.Vec2(Math.cos(0), Math.sin(0))); // Local right ?
-                    // Actually, if we want it to push "forward", it depends on how the part is oriented.
-                    // block w/h. Let's assume force is along local X axis.
-                    f.mul(thrust);
+                });
+            }
 
-                    // Simple: Apply force to center
-                    body.applyForceToCenter(f, true);
-                }
-            });
+            // Check Joints (Breaking) - only for cars in simulation
+            if (car.inSimulation) {
+                // Iterate backwards to remove
+                for (let i = car.joints.length - 1; i >= 0; i--) {
+                    const j = car.joints[i];
+                    const data = j.getUserData(); // { breakForce, breakTorque, isBroken }
 
-            // Check Joints (Breaking)
-            // Iterate backwards to remove
-            for (let i = car.joints.length - 1; i >= 0; i--) {
-                const j = car.joints[i];
-                const data = j.getUserData(); // { breakForce, breakTorque, isBroken }
+                    if (data) {
+                        const rForce = j.getReactionForce(1 / dt).length();
+                        const rTorque = Math.abs(j.getReactionTorque(1 / dt));
 
-                if (data) {
-                    const rForce = j.getReactionForce(1 / dt).length();
-                    const rTorque = Math.abs(j.getReactionTorque(1 / dt));
-
-                    if (rForce > data.breakForce || rTorque > data.breakTorque) {
-                        this.world.destroyJoint(j);
-                        car.joints.splice(i, 1);
+                        if (rForce > data.breakForce || rTorque > data.breakTorque) {
+                            this.world.destroyJoint(j);
+                            car.joints.splice(i, 1);
+                        }
                     }
                 }
             }
 
             // Check Progress
-            if (car.chassis) {
+            if (car.inSimulation && car.chassis) {
                 const x = car.chassis.getPosition().x;
                 if (x > car.maxX + MIN_PROGRESS) {
                     car.maxX = x;
@@ -233,15 +345,20 @@ export class App {
 
             // 2. Stuck
             let waitLimit = STOP_WAIT;
-            if (car.chassis) {
+            if (car.inSimulation && car.chassis) {
                 const vel = car.chassis.getLinearVelocity().length();
                 if (vel < 0.1) waitLimit = 0.5;
+            } else if (car.culled && car.velocity < 0.1) {
+                // Culled cars: if coasting velocity too low, mark as finished
+                waitLimit = 0;
             }
 
             if (this.time - car.lastProgressTime > waitLimit) {
                 car.finished = true;
-                // Sleep bodies to save CPU
-                car.parts.forEach(b => b.setAwake(false));
+                // Sleep bodies to save CPU (only if in simulation)
+                if (car.inSimulation) {
+                    car.parts.forEach(b => b.setAwake(false));
+                }
             }
 
             car.fitness = Math.max(0, car.maxX);
@@ -297,7 +414,16 @@ export class App {
             ? Math.max(...this.cars.map(c => c.maxX))
             : 0;
 
-        const targetCamX = leader.chassis ? leader.chassis.getPosition().x : 0;
+        // Get leader position (in simulation or culled)
+        let targetCamX = 0;
+        if (leader.inSimulation && leader.chassis) {
+            targetCamX = leader.chassis.getPosition().x;
+        } else if (leader.culled) {
+            targetCamX = leader.position || leader.maxX;
+        } else if (leader.chassis) {
+            targetCamX = leader.chassis.getPosition().x;
+        }
+
         // Loose tracking: Lerp towards target
         const lerpFactor = 0.1;
         this.cameraX += (targetCamX - this.cameraX) * lerpFactor;
@@ -306,11 +432,19 @@ export class App {
 
         // Prepare mini-map data
         const miniMapData = {
-            cars: this.cars.map(c => ({
-                id: c.carId,
-                x: c.chassis ? c.chassis.getPosition().x : 0,
-                finished: c.finished
-            })),
+            cars: this.cars.map(c => {
+                let carX = c.maxX;
+                if (c.inSimulation && c.chassis) {
+                    carX = c.chassis.getPosition().x;
+                } else if (c.culled) {
+                    carX = c.position || c.maxX;
+                }
+                return {
+                    id: c.carId,
+                    x: carX,
+                    finished: c.finished
+                };
+            }),
             historicalMaxX: this.historicalMaxX,
             trackedCarId: leader.carId,
             nextMilestone: this.lastMilestone + ECONOMY.MILESTONE_DISTANCE
@@ -324,7 +458,9 @@ export class App {
         this.ctx.fillText(`Gen: ${this.generation}`, 10, 20);
         this.ctx.fillText(`Time: ${this.time.toFixed(1)}s`, 10, 40);
         this.ctx.fillText(`Best: ${bestFitness.toFixed(2)}m`, 10, 60);
-        this.ctx.fillText(`Active: ${this.cars.filter(c => !c.finished).length}/${this.popSize}`, 10, 80);
+        const activeInSim = this.cars.filter(c => !c.finished && c.inSimulation).length;
+        const activeTotal = this.cars.filter(c => !c.finished).length;
+        this.ctx.fillText(`Active: ${activeInSim}/${activeTotal}/${this.popSize}`, 10, 80);
         this.ctx.fillText(`Money: $${this.money}`, 10, 100);
 
         if (this.statsCallback) {
