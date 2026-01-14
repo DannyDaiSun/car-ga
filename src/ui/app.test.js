@@ -28,7 +28,7 @@ describe('App UI Behavior', () => {
         const mockCanvas = { getContext: () => mockCtx, width: 800, height: 600 };
         const app = new App(mockCanvas);
 
-        expect(app).toMatchObject({ popSize: 200, mutRate: 0.05, maxParts: 12 });
+        expect(app).toMatchObject({ popSize: 60, mutRate: 0.05, maxParts: 12 });
     });
 
     it('reports statistics during draw loop', () => {

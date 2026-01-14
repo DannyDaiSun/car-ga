@@ -7,19 +7,22 @@ import { isJetpackBoostActive, updateJetpackEnergy, canJetpackThrust } from '../
 import { getInvalidJetpacks } from '../physics/jetpackValidation.js';
 import { render } from '../render/renderWorld.js';
 import { ECONOMY } from '../gameConfig.js';
+import { getGameConfig } from '../utils/configLoader.js';
 
+// Load game configuration
+const gameConfig = await getGameConfig();
 
-const STOP_WAIT = 3; // seconds
-const MIN_PROGRESS = 0.05; // meters
+const STOP_WAIT = gameConfig.controls.stopWait;
+const MIN_PROGRESS = gameConfig.controls.minProgress;
 
 // Optimization: Staggered car creation
-const CARS_PER_FRAME = 10; // Create 10 cars per frame
+const CARS_PER_FRAME = gameConfig.spawning.carsPerFrame;
 
 // Optimization: Directional culling (only cull cars behind champion)
-const CULL_DISTANCE_BEHIND = 250; // meters behind champion
-const REACTIVATE_DISTANCE = 150; // Re-add when closer than this
-const MIN_VELOCITY_TO_CULL = 0.3; // Don't cull fast-moving cars
-const DRAG_FACTOR = 0.96; // Velocity decay per frame for coasting
+const CULL_DISTANCE_BEHIND = gameConfig.spawning.cullDistanceBehind;
+const REACTIVATE_DISTANCE = gameConfig.spawning.reactivateDistance;
+const MIN_VELOCITY_TO_CULL = gameConfig.spawning.minVelocityToCull;
+const DRAG_FACTOR = gameConfig.controls.dragFactor;
 
 export class App {
     constructor(canvas, options = {}) {
@@ -29,9 +32,9 @@ export class App {
         this.height = canvas.height;
 
         // GA Settings (configurable)
-        this.popSize = options.popSize ?? 200;
+        this.popSize = options.popSize ?? gameConfig.population.default;
         this.mutRate = options.mutRate ?? 0.05;
-        this.maxParts = options.maxParts ?? 12;
+        this.maxParts = options.maxParts ?? gameConfig.dna.maxParts;
 
         // Economy & State
         this.money = ECONOMY.STARTING_MONEY;

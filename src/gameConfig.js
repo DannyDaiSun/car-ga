@@ -1,109 +1,60 @@
+/**
+ * Game configuration loaded from JSON files
+ * This module provides access to parts, economy, and game settings
+ */
 
-export const PART_DEFINITIONS = {
-    block: {
-        id: 'block',
-        label: 'Block',
-        desc: 'Standard chassis block',
-        ability: 'Stable chassis anchor',
-        price: 0,
-        unlocked: true, // Default
-        kind: 'block',
-        icon: '🟫',
-        tier: 'common',
-    },
-    wheel: {
-        id: 'wheel',
-        label: 'Wheel',
-        desc: 'Standard size wheel',
-        ability: 'Steady torque drive',
-        price: 0,
-        unlocked: true, // Default
-        kind: 'wheel',
-        icon: '⚙️',
-        tier: 'common',
-        motorMultiplier: 1.3
-    },
-    big_wheel: {
-        id: 'big_wheel',
-        label: 'Big Wheel',
-        desc: 'Larger radius wheel for rough terrain',
-        ability: 'Terrain-clearing traction',
-        price: 100,
-        unlocked: false,
-        kind: 'wheel',
-        icon: '🛞',
-        tier: 'uncommon',
-        // Special props handled in DNA generation
-        minRadius: 1.2,
-        maxRadius: 2.0
-    },
-    long_body: {
-        id: 'long_body',
-        label: 'Long Bar',
-        desc: 'Long, thin body part for reach',
-        ability: 'Extended chassis reach',
-        price: 150,
-        unlocked: false,
-        kind: 'block',
-        icon: '📏',
-        tier: 'rare',
-        // Special props
-        minW: 3.0,
-        maxW: 6.0,
-        minH: 0.2,
-        maxH: 0.4
-    },
-    jetpack: {
-        id: 'jetpack',
-        label: 'Jetpack',
-        desc: 'Applies forward thrust, recharges on track contact',
-        ability: 'Energy-based thrust with track recharge',
-        price: 300,
-        unlocked: false,
-        kind: 'jetpack',
-        icon: '🚀',
-        tier: 'legendary',
-        thrust: 200, // Force amount
-        boostInterval: 4.0, // 1 second work + 3 second cooldown
-        boostDuration: 1.0, // Boost active for 1 second
-        maxEnergy: 100, // Maximum energy capacity
-        energyConsumptionRate: 50, // Energy consumed per second while thrusting
-        rechargeRate: 80 // Energy recharged per second while in contact with track
-    },
-    small_wheel: {
-        id: 'small_wheel',
-        label: 'Small Wheel',
-        desc: 'Compact wheel - Faster spin, less durable',
-        ability: 'Fast spin with reduced durability',
-        price: 75,
-        unlocked: false,
-        kind: 'small_wheel',
-        icon: '⚙️',
-        tier: 'uncommon',
-        minRadius: 0.1,
-        maxRadius: 0.2,
-        motorMultiplier: 1.5,   // 50% faster motor speed
-        breakMultiplier: 0.6    // 40% easier to break
-    },
-    tiny_wheel: {
-        id: 'tiny_wheel',
-        label: 'Tiny Wheel',
-        desc: 'Ultra-compact - Very fast spin, very fragile',
-        ability: 'Ultra-fast spin, fragile build',
-        price: 125,
-        unlocked: false,
-        kind: 'tiny_wheel',
-        icon: '⚙️',
-        tier: 'rare',
-        minRadius: 0.08,
-        maxRadius: 0.15,
-        motorMultiplier: 2.0,   // 2x faster motor speed
-        breakMultiplier: 0.3    // 70% easier to break
-    }
-};
+import { getPartsConfig, getEconomyConfig } from './utils/configLoader.js';
 
+// Load configurations using top-level await
+const partsArray = await getPartsConfig();
+const economyConfig = await getEconomyConfig();
+
+// Convert parts array to object map for backwards compatibility
+export const PART_DEFINITIONS = {};
+for (const part of partsArray) {
+  PART_DEFINITIONS[part.id] = {
+    id: part.id,
+    label: part.name,
+    desc: part.name, // Use name as description fallback
+    ability: part.name,
+    price: part.price,
+    unlocked: part.unlocked,
+    kind: part.type === 'body' ? 'block' : part.id,
+    icon: getIconForPart(part.id),
+    tier: getTierForPrice(part.price),
+    ...part.properties
+  };
+}
+
+// Export economy settings
 export const ECONOMY = {
-    STARTING_MONEY: 200,
-    MONEY_PER_MILESTONE: 30, // Money gained per milestone
-    MILESTONE_DISTANCE: 30,   // Meters (more frequent, more rewarding)
+  STARTING_MONEY: economyConfig.startingMoney,
+  MONEY_PER_MILESTONE: economyConfig.moneyPerMilestone,
+  MILESTONE_DISTANCE: economyConfig.milestoneDistance
 };
+
+/**
+ * Get icon emoji for a part (for UI display)
+ */
+function getIconForPart(partId) {
+  const icons = {
+    block: '🟫',
+    wheel: '⚙️',
+    big_wheel: '🛞',
+    small_wheel: '⚙️',
+    tiny_wheel: '⚙️',
+    long_body: '📏',
+    jetpack: '🚀'
+  };
+  return icons[partId] || '❓';
+}
+
+/**
+ * Get tier based on price (for UI display)
+ */
+function getTierForPrice(price) {
+  if (price === 0) return 'common';
+  if (price < 100) return 'uncommon';
+  if (price < 200) return 'rare';
+  return 'legendary';
+}
