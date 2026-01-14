@@ -3,7 +3,7 @@ import * as planck from 'planck-js';
 import { createTrack, getTrackHeight } from '../physics/track.js';
 import { buildCar } from '../physics/buildCar.js';
 import { createFirstGeneration, nextGeneration } from '../ga/evolve.js';
-import { isJetpackBoostActive } from '../physics/jetpack.js';
+import { isJetpackBoostActive, updateJetpackEnergy, canJetpackThrust } from '../physics/jetpack.js';
 import { render } from '../render/renderWorld.js';
 import { ECONOMY } from '../gameConfig.js';
 
@@ -60,6 +60,22 @@ export class App {
         this.cameraX = 0;
     }
 
+    _findJetpackBody(bodyA, bodyB) {
+        // Check if either body belongs to a jetpack part
+        // We need to match bodies to cars and their parts
+        for (const car of this.cars) {
+            for (const [partId, body] of car.parts) {
+                if (body === bodyA || body === bodyB) {
+                    const partDef = car.dna.parts.find(p => p.id === partId);
+                    if (partDef && partDef.kind === 'jetpack') {
+                        return body;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     addMoney(amount) {
         this.money += amount;
         this.showToast(`Milestone Reached! +$${amount}`);
@@ -98,6 +114,31 @@ export class App {
             gravity: planck.Vec2(0, -9.8),
         });
 
+        // Track which jetpack bodies are in contact with track/ground
+        this.jetpackContactSet = new Set();
+
+        // Listen for collisions to detect jetpack-ground contact
+        this.world.on('begin-contact', (contact) => {
+            const bodyA = contact.getFixtureA().getBody();
+            const bodyB = contact.getFixtureB().getBody();
+
+            // Check if either body is a jetpack
+            const jetpackBody = this._findJetpackBody(bodyA, bodyB);
+            if (jetpackBody) {
+                this.jetpackContactSet.add(jetpackBody);
+            }
+        });
+
+        this.world.on('end-contact', (contact) => {
+            const bodyA = contact.getFixtureA().getBody();
+            const bodyB = contact.getFixtureB().getBody();
+
+            const jetpackBody = this._findJetpackBody(bodyA, bodyB);
+            if (jetpackBody) {
+                this.jetpackContactSet.delete(jetpackBody);
+            }
+        });
+
         createTrack(this.world);
 
         // Build Cars - Staggered across frames in gameplay, all at once in tests
@@ -126,6 +167,14 @@ export class App {
             // Find chassis (root)
             const chassis = parts.get(0);
 
+            // Initialize energy state for each jetpack part
+            const energyState = {};
+            dna.parts.forEach((partDef, idx) => {
+                if (partDef.kind === 'jetpack') {
+                    energyState[idx] = { energy: partDef.maxEnergy || 100 };
+                }
+            });
+
             this.cars.push({
                 carId: i,
                 dna: dna,
@@ -139,7 +188,8 @@ export class App {
                 inSimulation: true,
                 culled: false,
                 velocity: 0,
-                position: 0
+                position: 0,
+                energyState: energyState
             });
         }
 
@@ -228,6 +278,7 @@ export class App {
                         car.chassis = parts.get(0);
                         car.inSimulation = true;
                         car.culled = false;
+                        // Energy state is preserved across culling/reactivation
                     }
                 } else if (car.inSimulation && car.chassis) {
                     // Car is in simulation - check if it should be culled
@@ -273,25 +324,34 @@ export class App {
             // Apply Jetpack Forces (only for cars in simulation)
             if (car.inSimulation) {
                 car.parts.forEach((body, partId) => {
-                    // We need to look up the part definition from the DNA to know if it's a jetpack
-                    // But map is id->body. We have dna.parts array.
-                    // Helper: find partDef for this body
                     const partDef = car.dna.parts.find(p => p.id === partId);
                     if (partDef && partDef.kind === 'jetpack') {
-                        if (!isJetpackBoostActive(this.time, partDef)) {
+                        // Initialize energy state if missing
+                        if (!car.energyState[partId]) {
+                            car.energyState[partId] = { energy: partDef.maxEnergy || 100 };
+                        }
+
+                        // Check if jetpack is in contact with track/ground
+                        const isInContact = this.jetpackContactSet.has(body);
+
+                        // Update energy state
+                        car.energyState[partId] = updateJetpackEnergy(
+                            car.energyState[partId],
+                            partDef,
+                            this.time,
+                            isInContact,
+                            dt
+                        );
+
+                        // Check if boost should be active and energy is available
+                        if (!isJetpackBoostActive(this.time, partDef) || !canJetpackThrust(car.energyState[partId])) {
                             return;
                         }
-                        // Apply force in local 'right' direction (or up?)
-                        // Usually jetpack pushes forward or up. Let's say forward-ish relative to body angle.
-                        // Or standard: Apply force at center in local positive X direction?
-                        // "Thrust" property in DNA.
-                        const thrust = partDef.thrust || 100;
-                        const f = body.getWorldVector(planck.Vec2(Math.cos(0), Math.sin(0))); // Local right ?
-                        // Actually, if we want it to push "forward", it depends on how the part is oriented.
-                        // block w/h. Let's assume force is along local X axis.
-                        f.mul(thrust);
 
-                        // Simple: Apply force to center
+                        // Apply thrust force
+                        const thrust = partDef.thrust || 100;
+                        const f = body.getWorldVector(planck.Vec2(Math.cos(0), Math.sin(0)));
+                        f.mul(thrust);
                         body.applyForceToCenter(f, true);
                     }
                 });
