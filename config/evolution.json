@@ -1,0 +1,111 @@
+{
+  "eliteCount": 6,
+  "crossoverRate": 0.9,
+  "mutationRate": {
+    "default": 0.05,
+    "min": 0.0,
+    "max": 1.0
+  },
+  "dnaGeneration": {
+    "wheelProbability": 0.4,
+    "specialPartProbability": 0.3,
+    "jointEnableLimitProbability": 0.5,
+    "motorSpeed": {
+      "min": -20,
+      "max": 20
+    },
+    "maxMotorTorque": {
+      "min": 10,
+      "max": 100
+    },
+    "jointAnchors": {
+      "min": -1.0,
+      "max": 1.0
+    },
+    "jointAngles": {
+      "lowerMin": -0.7854,
+      "lowerMax": 0,
+      "upperMin": 0,
+      "upperMax": 0.7854
+    },
+    "jointBreakForce": {
+      "min": 500,
+      "max": 2000
+    },
+    "jointBreakTorque": {
+      "min": 200,
+      "max": 1000
+    }
+  },
+  "mutation": {
+    "partProperties": {
+      "wheelRadius": {
+        "delta": 0.05,
+        "min": 0.08,
+        "max": 1.5
+      },
+      "density": {
+        "delta": 0.5,
+        "min": 0.1,
+        "max": 10
+      },
+      "friction": {
+        "delta": 0.2,
+        "min": 0,
+        "max": 1
+      },
+      "motorSpeed": {
+        "delta": 3,
+        "min": -50,
+        "max": 50
+      },
+      "maxMotorTorque": {
+        "delta": 15,
+        "min": 0,
+        "max": 1000
+      },
+      "blockWidth": {
+        "delta": 0.1,
+        "min": 0.2,
+        "max": 3
+      },
+      "blockHeight": {
+        "delta": 0.1,
+        "min": 0.2,
+        "max": 3
+      }
+    },
+    "jointProperties": {
+      "anchorX": {
+        "delta": 0.05,
+        "min": -2,
+        "max": 2
+      },
+      "anchorY": {
+        "delta": 0.05,
+        "min": -2,
+        "max": 2
+      },
+      "lowerAngle": {
+        "delta": 0.1,
+        "min": -3.14159,
+        "max": 0
+      },
+      "upperAngle": {
+        "delta": 0.1,
+        "min": 0,
+        "max": 3.14159
+      },
+      "breakForce": {
+        "delta": 100,
+        "min": 10,
+        "max": 5000
+      },
+      "breakTorque": {
+        "delta": 50,
+        "min": 10,
+        "max": 5000
+      }
+    }
+  }
+}

@@ -1,5 +1,17 @@
 
 import { PART_DEFINITIONS } from '../gameConfig.js';
+import { getEvolutionConfig, getGameConfig } from '../utils/configLoader.js';
+
+// Load configurations
+const evolutionConfig = await getEvolutionConfig();
+const gameConfig = await getGameConfig();
+
+const MAX_PARTS = gameConfig.dna.maxParts;
+const MIN_PARTS = gameConfig.dna.minParts;
+const MAX_WHEELS = gameConfig.dna.maxWheels;
+const WHEEL_PROBABILITY = evolutionConfig.dnaGeneration.wheelProbability;
+const SPECIAL_PART_PROBABILITY = evolutionConfig.dnaGeneration.specialPartProbability;
+const JOINT_ENABLE_LIMIT_PROBABILITY = evolutionConfig.dnaGeneration.jointEnableLimitProbability;
 
 export const PI = Math.PI;
 
@@ -17,11 +29,11 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
     friction: randomRange(0.1, 0.9)
   });
 
-  // Randomly generate 1-3 wheels + extra parts (up to max 12 total parts)
+  // Randomly generate wheels + extra parts (up to max parts)
   // For V1, let's keep it simple: Start with root, add some random limbs/wheels.
   // We'll enforce the "tree" property by picking an existing part as parent.
 
-  const targetParts = Math.min(12, Math.max(2, maxParts)); // Clamp between 2 and 12
+  const targetParts = Math.min(MAX_PARTS, Math.max(MIN_PARTS, maxParts));
   let partCount = 1;
   let wheelCount = 0;
 
@@ -31,14 +43,14 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
 
     // Decide kind based on unlocked parts
     let kind = 'block';
-    if (wheelCount < 4 && unlockedParts.has('wheel') && Math.random() < 0.4) {
+    if (wheelCount < MAX_WHEELS && unlockedParts.has('wheel') && Math.random() < WHEEL_PROBABILITY) {
       kind = 'wheel';
-    } else if (Math.random() < 0.3) {
+    } else if (Math.random() < SPECIAL_PART_PROBABILITY) {
       // Try to pick a special part
       const options = [];
-      if (unlockedParts.has('big_wheel') && wheelCount < 4) options.push('big_wheel');
-      if (unlockedParts.has('small_wheel') && wheelCount < 4) options.push('small_wheel');
-      if (unlockedParts.has('tiny_wheel') && wheelCount < 4) options.push('tiny_wheel');
+      if (unlockedParts.has('big_wheel') && wheelCount < MAX_WHEELS) options.push('big_wheel');
+      if (unlockedParts.has('small_wheel') && wheelCount < MAX_WHEELS) options.push('small_wheel');
+      if (unlockedParts.has('tiny_wheel') && wheelCount < MAX_WHEELS) options.push('tiny_wheel');
       if (unlockedParts.has('long_body')) options.push('long_body');
       if (unlockedParts.has('jetpack')) options.push('jetpack');
 
@@ -49,7 +61,10 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
 
     if (kind === 'wheel') {
       const def = PART_DEFINITIONS.wheel;
-      const baseMotorSpeed = randomRange(-20, 20);
+      const baseMotorSpeed = randomRange(
+        evolutionConfig.dnaGeneration.motorSpeed.min,
+        evolutionConfig.dnaGeneration.motorSpeed.max
+      );
       parts.push({
         id,
         kind: 'wheel',
@@ -57,26 +72,27 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
         density: randomRange(1, 4),
         friction: randomRange(0.2, 1.0),
         motorSpeed: baseMotorSpeed * def.motorMultiplier,
-        maxMotorTorque: randomRange(10, 100)
+        maxMotorTorque: randomRange(
+          evolutionConfig.dnaGeneration.maxMotorTorque.min,
+          evolutionConfig.dnaGeneration.maxMotorTorque.max
+        )
       });
       wheelCount++;
     } else if (kind === 'big_wheel') {
       parts.push({
         id,
-        kind: 'wheel', // Physics collision uses 'wheel' kind check? or should we keep specific kind?
-        // PART_DEFINITIONS has kind: 'wheel', but the ID is 'big_wheel'.
-        // Let's store internal kind as 'wheel' for physics compatibility, 
-        // but maybe add a 'variant' field? OR just trust the props.
-        // Actually, buildCar uses kind === 'wheel' for circle shape.
-        // So we must set kind='wheel' in DNA, or update buildCar.
-        // Let's update buildCar to handle detailed kinds OR map them here.
-        // Better: DNA stores specific type. buildCar handles it.
         kind: 'big_wheel',
         radius: randomRange(PART_DEFINITIONS.big_wheel.minRadius, PART_DEFINITIONS.big_wheel.maxRadius),
         density: randomRange(1, 4),
         friction: randomRange(0.2, 1.0),
-        motorSpeed: randomRange(-20, 20),
-        maxMotorTorque: randomRange(10, 100)
+        motorSpeed: randomRange(
+          evolutionConfig.dnaGeneration.motorSpeed.min,
+          evolutionConfig.dnaGeneration.motorSpeed.max
+        ),
+        maxMotorTorque: randomRange(
+          evolutionConfig.dnaGeneration.maxMotorTorque.min,
+          evolutionConfig.dnaGeneration.maxMotorTorque.max
+        )
       });
       wheelCount++;
     } else if (kind === 'long_body') {
@@ -90,8 +106,10 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
       });
     } else if (kind === 'small_wheel') {
       const def = PART_DEFINITIONS.small_wheel;
-      const baseMotorSpeed = randomRange(-20, 20);
-      const baseBreakForce = randomRange(500, 2000);
+      const baseMotorSpeed = randomRange(
+        evolutionConfig.dnaGeneration.motorSpeed.min,
+        evolutionConfig.dnaGeneration.motorSpeed.max
+      );
       parts.push({
         id,
         kind: 'small_wheel',
@@ -99,13 +117,19 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
         density: randomRange(1, 4),
         friction: randomRange(0.2, 1.0),
         motorSpeed: baseMotorSpeed * def.motorMultiplier,
-        maxMotorTorque: randomRange(10, 100),
+        maxMotorTorque: randomRange(
+          evolutionConfig.dnaGeneration.maxMotorTorque.min,
+          evolutionConfig.dnaGeneration.maxMotorTorque.max
+        ),
         breakMultiplier: def.breakMultiplier
       });
       wheelCount++;
     } else if (kind === 'tiny_wheel') {
       const def = PART_DEFINITIONS.tiny_wheel;
-      const baseMotorSpeed = randomRange(-20, 20);
+      const baseMotorSpeed = randomRange(
+        evolutionConfig.dnaGeneration.motorSpeed.min,
+        evolutionConfig.dnaGeneration.motorSpeed.max
+      );
       parts.push({
         id,
         kind: 'tiny_wheel',
@@ -113,7 +137,10 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
         density: randomRange(1, 4),
         friction: randomRange(0.2, 1.0),
         motorSpeed: baseMotorSpeed * def.motorMultiplier,
-        maxMotorTorque: randomRange(10, 100),
+        maxMotorTorque: randomRange(
+          evolutionConfig.dnaGeneration.maxMotorTorque.min,
+          evolutionConfig.dnaGeneration.maxMotorTorque.max
+        ),
         breakMultiplier: def.breakMultiplier
       });
       wheelCount++;
@@ -146,14 +173,32 @@ export function createRandomDNA(maxParts = 8, unlockedParts = new Set(['block', 
     joints.push({
       childId: id,
       parentId: parentId,
-      anchorX: randomRange(-1, 1), // Relative to parent center
-      anchorY: randomRange(-1, 1),
+      anchorX: randomRange(
+        evolutionConfig.dnaGeneration.jointAnchors.min,
+        evolutionConfig.dnaGeneration.jointAnchors.max
+      ),
+      anchorY: randomRange(
+        evolutionConfig.dnaGeneration.jointAnchors.min,
+        evolutionConfig.dnaGeneration.jointAnchors.max
+      ),
       jointType: 'revolute',
-      enableLimit: Math.random() < 0.5,
-      lowerAngle: randomRange(-PI / 4, 0),
-      upperAngle: randomRange(0, PI / 4),
-      breakForce: randomRange(500, 2000),
-      breakTorque: randomRange(200, 1000)
+      enableLimit: Math.random() < JOINT_ENABLE_LIMIT_PROBABILITY,
+      lowerAngle: randomRange(
+        evolutionConfig.dnaGeneration.jointAngles.lowerMin,
+        evolutionConfig.dnaGeneration.jointAngles.lowerMax
+      ),
+      upperAngle: randomRange(
+        evolutionConfig.dnaGeneration.jointAngles.upperMin,
+        evolutionConfig.dnaGeneration.jointAngles.upperMax
+      ),
+      breakForce: randomRange(
+        evolutionConfig.dnaGeneration.jointBreakForce.min,
+        evolutionConfig.dnaGeneration.jointBreakForce.max
+      ),
+      breakTorque: randomRange(
+        evolutionConfig.dnaGeneration.jointBreakTorque.min,
+        evolutionConfig.dnaGeneration.jointBreakTorque.max
+      )
     });
 
     partCount++;

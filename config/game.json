@@ -1,0 +1,32 @@
+{
+  "population": {
+    "default": 60,
+    "min": 1,
+    "max": 200
+  },
+  "dna": {
+    "maxParts": 12,
+    "minParts": 2,
+    "defaultTargetParts": 8,
+    "maxWheels": 4
+  },
+  "simulation": {
+    "timeStep": 0.016666667,
+    "maxTime": 20,
+    "minProgressEps": 0.05,
+    "progressTimeout": 3,
+    "maxStepsPerFrame": 5
+  },
+  "spawning": {
+    "carsPerFrame": 10,
+    "startYPosition": 10,
+    "cullDistanceBehind": 250,
+    "reactivateDistance": 150,
+    "minVelocityToCull": 0.3
+  },
+  "controls": {
+    "stopWait": 3,
+    "minProgress": 0.05,
+    "dragFactor": 0.96
+  }
+}

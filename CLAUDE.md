@@ -49,10 +49,17 @@ npm run lint     # Run linter
 
 **Project Structure:**
 ```
+config/                  # JSON configuration files
+├── game.json           # Core game settings (population, DNA, simulation)
+├── economy.json        # Money, rewards, milestones
+├── parts.json          # Car parts definitions and properties
+└── evolution.json      # Genetic algorithm parameters
 src/
 ├── main.js              # Entry point
-├── gameConfig.js        # Game configuration (parts, economy)
-├── partRegistry.js      # Registry for car parts
+├── gameConfig.js        # Config loader wrapper (loads from JSON)
+├── partRegistry.js      # Registry for car parts (loads from JSON)
+├── utils/
+│   └── configLoader.js  # JSON config loading utility
 ├── ga/                  # Genetic Algorithm module
 │   ├── dna.js          # DNA structure and random generation
 │   ├── evolve.js       # Evolution logic (generations)
@@ -82,7 +89,51 @@ src/
 **Design Patterns:**
 - Class-based App controller (src/ui/app.js) manages overall simulation state
 - Functional modules for GA operations (evolve, mutate, select)
-- Configuration-driven: gameConfig.js for all part definitions and economy
+- Configuration-driven: All game settings stored in JSON files under `/config`
+- Config loader utility (`src/utils/configLoader.js`) handles both browser and Node.js environments
+
+## Configuration System
+
+**Overview:**
+All game configuration is stored in JSON files under the `/config` directory. This allows easy modification of game balance, parts, economy, and genetic algorithm parameters without touching source code.
+
+**Configuration Files:**
+
+1. **`config/game.json`** - Core game settings
+   - Population size (default: 60)
+   - DNA constraints (max parts: 12, max wheels: 4)
+   - Simulation parameters (time step, progress timeout)
+   - Car spawning settings (cars per frame, culling distance)
+   - Control settings (stop wait, drag factor)
+
+2. **`config/economy.json`** - Economy settings
+   - Starting money: 200
+   - Money per milestone: 30
+   - Milestone distance: 30 meters
+
+3. **`config/parts.json`** - Car parts definitions
+   - Part types: block, wheel, big_wheel, small_wheel, tiny_wheel, long_body, jetpack
+   - Properties: dimensions, density, friction, motor multipliers
+   - Visual properties: colors (fill, stroke, accent), sprites
+   - Pricing and unlock status
+
+4. **`config/evolution.json`** - Genetic algorithm parameters
+   - Elite count: 6
+   - Crossover rate: 0.9
+   - DNA generation rules (probabilities, ranges)
+   - Mutation parameters (deltas, min/max values for all properties)
+
+**Config Loader:**
+- Location: `src/utils/configLoader.js`
+- Supports both browser (fetch) and Node.js (fs) environments
+- Caches loaded configs for performance
+- Functions: `loadConfig()`, `getGameConfig()`, `getEconomyConfig()`, `getPartsConfig()`, `getEvolutionConfig()`
+
+**Modifying Game Balance:**
+To adjust game parameters, edit the relevant JSON file in `/config`. Changes take effect after restarting the dev server. Examples:
+- Increase population: edit `config/game.json` → `population.default`
+- Adjust part prices: edit `config/parts.json` → `parts[].price`
+- Change mutation rates: edit `config/evolution.json` → `mutation.partProperties`
 
 ## Game Systems
 
@@ -100,16 +151,18 @@ src/
 - Jetpack: Energy-based thrust system (recharges on track contact)
 - Collision: Cars interact with track and each other
 
-**Jetpack System (as of 2025-01-14):**
+**Jetpack System:**
 - Energy mechanic: max 100 energy, consumption 50/sec while thrusting
 - Recharge: 80 energy/sec when in contact with track
-- Boost interval: 3.0 seconds between boosts, 0.3 second duration per boost
+- Boost interval: 4.0 seconds between boosts, 1.0 second duration per boost
 - Thrust: 200 force units when active
+- All parameters configurable in `config/parts.json` (jetpack entry)
 
 **Economy System:**
 - Starting money: 200
 - Money per milestone (30 meters): 30 currency
 - Parts have prices; unlocked parts available for evolution
+- All parameters configurable in `config/economy.json`
 
 ## Conventions
 
@@ -161,11 +214,18 @@ npm run test         # Run tests
 
 ## Recent Major Changes
 
+- [2026-01-14] **Configuration refactoring**: All game settings moved to JSON files
+  - Created `/config` directory with 4 JSON configuration files
+  - Core settings: game.json (population, DNA, simulation)
+  - Economy: economy.json (money, milestones)
+  - Parts: parts.json (all car parts with properties and visuals)
+  - Evolution: evolution.json (GA parameters, mutation rules)
+  - Config loader utility supports both browser and Node.js environments
+  - All 87 unit tests passing after refactoring
 - [2025-01-14] Jetpack energy system with track recharge implemented
 - [2025-01-14] Air friction added for faster descents when flying
 - [2025-01-14] Game balance adjustments: periodic jetpack, longer charge bar, wheel size adjustments
 - [2025-01-14] All car parts unlocked from start; population set to 60
-- [2025-01-14] Previous: Jetpack periodic boost system, physics improvements
 
 ---
-*Last updated: 2025-01-14 - Initial project memory sweep with jetpack and physics systems documented*
+*Last updated: 2026-01-14 - Configuration system refactored to JSON files*

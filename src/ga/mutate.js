@@ -1,5 +1,10 @@
 
 import { cloneDNA, PI } from './dna.js';
+import { getEvolutionConfig } from '../utils/configLoader.js';
+
+// Load mutation configuration
+const evolutionConfig = await getEvolutionConfig();
+const mutationConfig = evolutionConfig.mutation;
 
 // --- Helpers ---
 
@@ -39,27 +44,45 @@ export function mutatePerField(dna, rate = 0.02) {
     dna.parts.forEach(p => {
         const isWheel = ['wheel', 'big_wheel', 'small_wheel', 'tiny_wheel'].includes(p.kind);
         if (isWheel) {
-            if (Math.random() < rate) p.radius = clamp(p.radius + randDelta(0.05), 0.08, 1.5);
-            if (Math.random() < rate) p.density = clamp(p.density + randDelta(0.5), 0.1, 10);
-            if (Math.random() < rate) p.friction = clamp(p.friction + randDelta(0.2), 0, 1);
-            if (Math.random() < rate) p.motorSpeed = clamp(p.motorSpeed + randDelta(3), -50, 50);
-            if (Math.random() < rate) p.maxMotorTorque = clamp(p.maxMotorTorque + randDelta(15), 0, 1000);
+            const wheelRadiusConfig = mutationConfig.partProperties.wheelRadius;
+            const densityConfig = mutationConfig.partProperties.density;
+            const frictionConfig = mutationConfig.partProperties.friction;
+            const motorSpeedConfig = mutationConfig.partProperties.motorSpeed;
+            const motorTorqueConfig = mutationConfig.partProperties.maxMotorTorque;
+
+            if (Math.random() < rate) p.radius = clamp(p.radius + randDelta(wheelRadiusConfig.delta), wheelRadiusConfig.min, wheelRadiusConfig.max);
+            if (Math.random() < rate) p.density = clamp(p.density + randDelta(densityConfig.delta), densityConfig.min, densityConfig.max);
+            if (Math.random() < rate) p.friction = clamp(p.friction + randDelta(frictionConfig.delta), frictionConfig.min, frictionConfig.max);
+            if (Math.random() < rate) p.motorSpeed = clamp(p.motorSpeed + randDelta(motorSpeedConfig.delta), motorSpeedConfig.min, motorSpeedConfig.max);
+            if (Math.random() < rate) p.maxMotorTorque = clamp(p.maxMotorTorque + randDelta(motorTorqueConfig.delta), motorTorqueConfig.min, motorTorqueConfig.max);
         } else {
-            if (Math.random() < rate) p.w = clamp(p.w + randDelta(0.1), 0.2, 3);
-            if (Math.random() < rate) p.h = clamp(p.h + randDelta(0.1), 0.2, 3);
-            if (Math.random() < rate) p.density = clamp(p.density + randDelta(0.5), 0.1, 10);
-            if (Math.random() < rate) p.friction = clamp(p.friction + randDelta(0.2), 0, 1);
+            const widthConfig = mutationConfig.partProperties.blockWidth;
+            const heightConfig = mutationConfig.partProperties.blockHeight;
+            const densityConfig = mutationConfig.partProperties.density;
+            const frictionConfig = mutationConfig.partProperties.friction;
+
+            if (Math.random() < rate) p.w = clamp(p.w + randDelta(widthConfig.delta), widthConfig.min, widthConfig.max);
+            if (Math.random() < rate) p.h = clamp(p.h + randDelta(heightConfig.delta), heightConfig.min, heightConfig.max);
+            if (Math.random() < rate) p.density = clamp(p.density + randDelta(densityConfig.delta), densityConfig.min, densityConfig.max);
+            if (Math.random() < rate) p.friction = clamp(p.friction + randDelta(frictionConfig.delta), frictionConfig.min, frictionConfig.max);
         }
     });
 
     // Joints
     dna.joints.forEach(j => {
-        if (Math.random() < rate) j.anchorX = clamp(j.anchorX + randDelta(0.05), -2, 2);
-        if (Math.random() < rate) j.anchorY = clamp(j.anchorY + randDelta(0.05), -2, 2);
-        if (Math.random() < rate) j.lowerAngle = clamp(j.lowerAngle + randDelta(0.1), -PI, 0);
-        if (Math.random() < rate) j.upperAngle = clamp(j.upperAngle + randDelta(0.1), 0, PI);
-        if (Math.random() < rate) j.breakForce = clamp(j.breakForce + randDelta(100), 10, 5000);
-        if (Math.random() < rate) j.breakTorque = clamp(j.breakTorque + randDelta(50), 10, 5000);
+        const anchorXConfig = mutationConfig.jointProperties.anchorX;
+        const anchorYConfig = mutationConfig.jointProperties.anchorY;
+        const lowerAngleConfig = mutationConfig.jointProperties.lowerAngle;
+        const upperAngleConfig = mutationConfig.jointProperties.upperAngle;
+        const breakForceConfig = mutationConfig.jointProperties.breakForce;
+        const breakTorqueConfig = mutationConfig.jointProperties.breakTorque;
+
+        if (Math.random() < rate) j.anchorX = clamp(j.anchorX + randDelta(anchorXConfig.delta), anchorXConfig.min, anchorXConfig.max);
+        if (Math.random() < rate) j.anchorY = clamp(j.anchorY + randDelta(anchorYConfig.delta), anchorYConfig.min, anchorYConfig.max);
+        if (Math.random() < rate) j.lowerAngle = clamp(j.lowerAngle + randDelta(lowerAngleConfig.delta), lowerAngleConfig.min, lowerAngleConfig.max);
+        if (Math.random() < rate) j.upperAngle = clamp(j.upperAngle + randDelta(upperAngleConfig.delta), upperAngleConfig.min, upperAngleConfig.max);
+        if (Math.random() < rate) j.breakForce = clamp(j.breakForce + randDelta(breakForceConfig.delta), breakForceConfig.min, breakForceConfig.max);
+        if (Math.random() < rate) j.breakTorque = clamp(j.breakTorque + randDelta(breakTorqueConfig.delta), breakTorqueConfig.min, breakTorqueConfig.max);
 
         // Ensure angle limits sanity
         if (j.lowerAngle > j.upperAngle) {

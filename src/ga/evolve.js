@@ -2,9 +2,12 @@
 import { pickParentRoulette } from './select.js';
 import { subtreeCrossover, mutatePerField, normalizeAndClamp } from './mutate.js';
 import { cloneDNA, createRandomDNA } from './dna.js';
+import { getEvolutionConfig } from '../utils/configLoader.js';
 
-const ELITE_COUNT = 6;
-const CROSSOVER_RATE = 0.90;
+// Load evolution configuration
+const evolutionConfig = await getEvolutionConfig();
+const ELITE_COUNT = evolutionConfig.eliteCount;
+const CROSSOVER_RATE = evolutionConfig.crossoverRate;
 
 export function createFirstGeneration(popSize = 100, maxParts = 8, unlockedParts) {
     const pop = [];

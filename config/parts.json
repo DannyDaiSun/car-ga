@@ -1,0 +1,171 @@
+{
+  "parts": [
+    {
+      "id": "block",
+      "name": "Block",
+      "price": 0,
+      "unlocked": true,
+      "type": "body",
+      "properties": {
+        "minW": 0.5,
+        "maxW": 1.5,
+        "minH": 0.5,
+        "maxH": 1.5,
+        "minDensity": 1,
+        "maxDensity": 5,
+        "minFriction": 0.1,
+        "maxFriction": 0.9
+      },
+      "visual": {
+        "fill": "#d9455f",
+        "stroke": "#2f483a",
+        "accent": "#f4b23f",
+        "sprite": "geo_body_sport"
+      }
+    },
+    {
+      "id": "wheel",
+      "name": "Wheel",
+      "price": 0,
+      "unlocked": true,
+      "type": "wheel",
+      "properties": {
+        "minRadius": 0.3,
+        "maxRadius": 0.8,
+        "minDensity": 1,
+        "maxDensity": 4,
+        "minFriction": 0.2,
+        "maxFriction": 1.0,
+        "motorMultiplier": 1.3,
+        "breakMultiplier": 1.0
+      },
+      "visual": {
+        "fill": "#43464b",
+        "stroke": "#1b1e23",
+        "accent": "#8b8f96",
+        "sprite": "geo_wheel_mag",
+        "detailScale": 0.55
+      }
+    },
+    {
+      "id": "big_wheel",
+      "name": "Big Wheel",
+      "price": 100,
+      "unlocked": true,
+      "type": "wheel",
+      "properties": {
+        "minRadius": 1.2,
+        "maxRadius": 2.0,
+        "minDensity": 1,
+        "maxDensity": 4,
+        "minFriction": 0.2,
+        "maxFriction": 1.0,
+        "motorMultiplier": 1.3,
+        "breakMultiplier": 1.0
+      },
+      "visual": {
+        "fill": "#3d3f44",
+        "stroke": "#1b1e23",
+        "accent": "#9ba2ab",
+        "sprite": "geo_wheel_mag",
+        "detailScale": 0.45
+      }
+    },
+    {
+      "id": "small_wheel",
+      "name": "Small Wheel",
+      "price": 75,
+      "unlocked": true,
+      "type": "wheel",
+      "properties": {
+        "minRadius": 0.1,
+        "maxRadius": 0.2,
+        "minDensity": 1,
+        "maxDensity": 4,
+        "minFriction": 0.2,
+        "maxFriction": 1.0,
+        "motorMultiplier": 1.5,
+        "breakMultiplier": 0.6
+      },
+      "visual": {
+        "fill": "#4f5258",
+        "stroke": "#1b1e23",
+        "accent": "#9ba2ab",
+        "sprite": "geo_wheel_mag",
+        "detailScale": 0.65
+      }
+    },
+    {
+      "id": "tiny_wheel",
+      "name": "Tiny Wheel",
+      "price": 125,
+      "unlocked": true,
+      "type": "wheel",
+      "properties": {
+        "minRadius": 0.08,
+        "maxRadius": 0.15,
+        "minDensity": 1,
+        "maxDensity": 4,
+        "minFriction": 0.2,
+        "maxFriction": 1.0,
+        "motorMultiplier": 2.0,
+        "breakMultiplier": 0.3
+      },
+      "visual": {
+        "fill": "#5b6066",
+        "stroke": "#1b1e23",
+        "accent": "#9ba2ab",
+        "sprite": "geo_wheel_mag",
+        "detailScale": 0.75
+      }
+    },
+    {
+      "id": "long_body",
+      "name": "Long Body",
+      "price": 150,
+      "unlocked": true,
+      "type": "body",
+      "properties": {
+        "minW": 3.0,
+        "maxW": 6.0,
+        "minH": 0.2,
+        "maxH": 0.4,
+        "minDensity": 1,
+        "maxDensity": 5,
+        "minFriction": 0.1,
+        "maxFriction": 0.9
+      },
+      "visual": {
+        "fill": "#4a74e0",
+        "stroke": "#1d2e66",
+        "accent": "#9bb8ff",
+        "sprite": "geo_body_truck"
+      }
+    },
+    {
+      "id": "jetpack",
+      "name": "Jetpack",
+      "price": 300,
+      "unlocked": true,
+      "type": "jetpack",
+      "properties": {
+        "w": 0.5,
+        "h": 0.8,
+        "density": 1,
+        "friction": 0.5,
+        "thrust": 200,
+        "boostInterval": 4.0,
+        "boostDuration": 1.0,
+        "maxEnergy": 100,
+        "energyConsumptionRate": 50,
+        "rechargeRate": 80
+      },
+      "visual": {
+        "fill": "#ff8a3d",
+        "stroke": "#7a2f0b",
+        "accent": "#ffd066",
+        "sprite": "cyber_booster_rocket"
+      }
+    }
+  ]
+}
