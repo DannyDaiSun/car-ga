@@ -34,7 +34,7 @@ export class App {
 
         // Economy & State
         this.money = ECONOMY.STARTING_MONEY;
-        this.unlockedParts = new Set(['block', 'wheel']);
+        this.unlockedParts = new Set(['block', 'wheel', 'big_wheel', 'long_body', 'jetpack', 'small_wheel', 'tiny_wheel']);
         this.lastMilestone = 0; // For economy rewards
         this.historicalMaxX = 0;
 
